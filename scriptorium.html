@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scriptorium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cinzel:wght@400;500;600&family=Amiri:ital,wght@0,400;0,700;1,400&family=Reem+Kufi:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --umber:#1C140C;
+  --umber-2:#2A1E12;
+  --wood:#3A2A18;
+  --lapis:#1F3A6E;
+  --verdigris:#4A6B4A;
+  --vermilion:#C1352B;
+  --gold:#C9A227;
+  --gold-soft:#E0C56A;
+  --gold-dim:rgba(201,162,39,.34);
+  --parch:#EFE4CA;
+  --parch-mute:#BFAE8C;
+  --vellum:#EDE2C6;
+  --iron:#2A2118;
+  --rule:rgba(201,162,39,.22);
+  --rule-soft:rgba(201,162,39,.12);
+  --book:"EB Garamond",Georgia,serif;
+  --blackletter:"UnifrakturMaguntia","EB Garamond",serif;
+  --carved:"Cinzel","EB Garamond",serif;
+  --naskh:"Amiri","Times New Roman",serif;
+  --kufi:"Reem Kufi","Noto Kufi Arabic",sans-serif;
+  --display:var(--blackletter);
+  --read:var(--book);
+  --label:var(--carved);
+}
+html[lang="ar"]{ --display:var(--kufi); --read:var(--naskh); --label:var(--kufi); }
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--umber);
+  color:var(--parch);
+  font-family:var(--read);
+  font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+
+/* ============ painted background ============ */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg svg{display:block}
+.miniature{position:absolute;inset:0;width:100%;height:100%;opacity:.34}
+.painting{position:absolute;inset:0;background-size:cover;background-position:center;
+  opacity:0;filter:sepia(.55) saturate(.75) contrast(.95)}
+.vine{position:absolute;top:0;height:100%;width:118px;opacity:.42}
+.vine-l{inset-inline-start:0}
+.vine-r{inset-inline-end:0;transform:scaleX(-1)}
+@media(max-width:1180px){.vine{display:none}}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 38%,rgba(28,20,12,.12) 0%,rgba(28,20,12,.74) 62%,rgba(18,12,6,.94) 100%),
+    linear-gradient(180deg,rgba(18,12,6,.55),transparent 22%,transparent 72%,rgba(18,12,6,.75))}
+.wrap{position:relative;z-index:2}
+
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+a{color:var(--gold-soft);text-decoration:none}
+a:hover{color:var(--vermilion)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+::selection{background:var(--gold);color:var(--umber)}
+
+/* ============ top bar ============ */
+.topbar{border-bottom:1px solid var(--rule);background:rgba(20,14,8,.84);
+  position:sticky;top:0;z-index:20;backdrop-filter:blur(2px)}
+.topbar-in{max-width:1220px;margin:0 auto;padding:.5rem 20px;display:flex;align-items:center;
+  gap:1rem;flex-wrap:wrap;justify-content:space-between}
+.panels{display:flex;gap:.4rem}
+.ptab{font-family:var(--label);font-size:.82rem;letter-spacing:.04em;color:var(--parch-mute);
+  border:1px solid var(--rule);padding:.32rem .85rem;white-space:nowrap}
+.ptab:hover{color:var(--gold-soft);border-color:var(--gold-dim)}
+.ptab[aria-pressed="true"]{color:var(--umber);background:var(--gold);border-color:var(--gold)}
+.topbar-right{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap}
+.lang{display:flex;border:1px solid var(--rule)}
+.lang button{font-family:var(--label);font-size:.8rem;padding:.28rem .62rem;color:var(--parch-mute)}
+.lang button[aria-pressed="true"]{background:rgba(201,162,39,.16);color:var(--gold-soft)}
+.lang button:hover{color:var(--gold)}
+.tally{font-family:var(--label);font-size:.74rem;color:var(--parch-mute);letter-spacing:.04em}
+@media(max-width:640px){.tally{display:none}}
+
+/* ============ shell ============ */
+.shell{max-width:1220px;margin:0 auto;padding:0 20px}
+@media(min-width:980px){
+  .shell{display:grid;grid-template-columns:20rem minmax(0,1fr);align-items:start}
+  .rail{position:sticky;top:50px;max-height:calc(100vh - 50px);overflow-y:auto;
+    padding:36px 32px 40px 0;border-inline-end:1px solid var(--rule)}
+  .main{padding:36px 0 110px;padding-inline-start:40px;min-width:0}
+}
+@media(max-width:979px){
+  .rail{padding:26px 0 22px;border-bottom:1px solid var(--rule)}
+  .main{padding:24px 0 80px}
+}
+.rail::-webkit-scrollbar{width:5px}
+.rail::-webkit-scrollbar-thumb{background:var(--gold-dim)}
+
+/* ============ masthead ============ */
+.brand{display:block}
+.title{font-family:var(--display);font-weight:400;font-size:3rem;line-height:1.02;
+  margin:0 0 .4rem;color:var(--gold);text-shadow:0 2px 0 rgba(0,0,0,.45)}
+html[lang="ar"] .title{font-size:2.3rem;line-height:1.4;font-weight:600}
+.tagline{font-size:1.05rem;line-height:1.5;color:var(--parch);margin:0 0 .9rem;max-width:30ch}
+.tally-line{font-family:var(--label);font-size:.74rem;color:var(--parch-mute);letter-spacing:.05em;
+  margin:0 0 1.2rem;border-block:1px solid var(--rule);padding:.4rem 0}
+.byline{font-family:var(--label);font-size:.8rem;color:var(--parch-mute);margin:0 0 1rem}
+.byline b{color:var(--gold-soft);font-weight:500}
+.bio{font-size:.98rem;line-height:1.6;color:var(--parch-mute);margin:0 0 1.2rem;max-width:34ch}
+
+.nav{list-style:none;margin:0 0 1.4rem;padding:0}
+.nav li{border-bottom:1px dotted var(--rule)}
+.nav a{display:block;padding:.42rem 0;font-family:var(--label);font-size:.92rem;letter-spacing:.03em;color:var(--parch)}
+.nav a::before{content:"\276F  ";color:var(--gold-dim)}
+.nav a:hover{color:var(--gold-soft)}
+.nav a[aria-current="page"]{color:var(--gold)}
+.nav a[aria-current="page"]::before{color:var(--gold)}
+
+.rail-block{border-top:1px solid var(--gold-dim);padding-top:1rem;margin-top:1.3rem}
+.rail-h{font-family:var(--display);font-size:1.5rem;font-weight:400;color:var(--gold);margin:0 0 .5rem;line-height:1.1}
+html[lang="ar"] .rail-h{font-size:1.1rem;font-weight:600;line-height:1.5}
+.rail-p{font-size:.95rem;color:var(--parch-mute);margin:0 0 .7rem;line-height:1.55}
+.social{display:flex;flex-wrap:wrap;gap:.35rem}
+.social a{font-family:var(--label);font-size:.75rem;border:1px solid var(--rule);padding:.15rem .55rem;color:var(--parch)}
+.social a:hover{border-color:var(--gold);color:var(--gold-soft)}
+
+/* ============ forms ============ */
+.field{width:100%;background:rgba(239,228,202,.07);border:1px solid var(--rule);
+  padding:.5rem .65rem;font-family:var(--read);font-size:1rem;color:var(--parch)}
+.field::placeholder{color:rgba(191,174,140,.6)}
+.field:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.14)}
+select.field{appearance:none}
+option{background:var(--umber-2);color:var(--parch)}
+textarea.field{min-height:5rem;resize:vertical;line-height:1.65}
+textarea.body-field{min-height:20rem;font-size:1rem}
+label.lab{display:block;font-family:var(--label);font-size:.76rem;letter-spacing:.05em;
+  color:var(--parch-mute);margin:0 0 .3rem}
+.hint{font-size:.9rem;color:var(--parch-mute);margin:.35rem 0 0;line-height:1.5;opacity:.88}
+.row{display:flex;gap:.55rem;flex-wrap:wrap}
+.row>*{flex:1 1 12rem}
+.stack{display:grid;gap:.95rem}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.btn{border:1px solid var(--gold-dim);color:var(--gold-soft);padding:.45rem .95rem;
+  font-family:var(--label);font-size:.86rem;letter-spacing:.03em}
+.btn:hover{background:rgba(201,162,39,.12);border-color:var(--gold)}
+.btn.solid{background:var(--gold);color:var(--umber);border-color:var(--gold)}
+.btn.solid:hover{background:var(--gold-soft)}
+.btn.warn{border-color:rgba(193,53,43,.5);color:#E08078}
+.btn.warn:hover{background:rgba(193,53,43,.16);border-color:var(--vermilion)}
+.btn.sm{padding:.25rem .6rem;font-size:.78rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============ feed ============ */
+.feedbar{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  border-bottom:1px solid var(--gold-dim);padding-bottom:.6rem;margin-bottom:1.7rem}
+.feedbar h2{font-family:var(--display);font-size:2rem;font-weight:400;color:var(--gold);margin:0;line-height:1.05}
+html[lang="ar"] .feedbar h2{font-size:1.45rem;font-weight:600;line-height:1.5}
+.feedbar .count{font-family:var(--label);font-size:.76rem;color:var(--parch-mute)}
+.search{max-width:14rem}
+
+.entry{display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 1.1rem;
+  padding-bottom:2rem;margin-bottom:2rem;border-bottom:1px solid var(--rule-soft)}
+.entry:last-of-type{border-bottom:0}
+.versal{font-family:var(--display);font-size:2.3rem;line-height:1;color:var(--gold);
+  width:2.7rem;height:2.7rem;display:grid;place-items:center;
+  border:1px solid var(--gold-dim);background:rgba(201,162,39,.08)}
+html[lang="ar"] .versal{font-family:var(--kufi);font-size:1.45rem;font-weight:600}
+.entry-body{min-width:0}
+.meta{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-family:var(--label);
+  font-size:.74rem;letter-spacing:.05em;color:var(--parch-mute);margin:0 0 .5rem}
+.meta .kind{color:var(--gold-soft)}
+.meta .draft-flag{color:var(--vermilion)}
+.mark{color:var(--gold)}
+.entry h3{font-family:var(--read);font-weight:600;font-size:1.6rem;line-height:1.2;
+  margin:0 0 .5rem;color:var(--parch);max-width:28ch}
+.entry h3 a{color:inherit}
+.entry h3 a:hover{color:var(--gold-soft)}
+.excerpt{font-size:1.05rem;line-height:1.62;color:var(--parch-mute);margin:0 0 .85rem;max-width:62ch}
+.tags{display:flex;gap:.35rem;flex-wrap:wrap;margin:.7rem 0 0}
+.tag{font-family:var(--label);font-size:.72rem;letter-spacing:.04em;color:var(--parch-mute);
+  border:1px solid var(--rule-soft);padding:.1rem .5rem}
+.tag:hover{color:var(--gold-soft);border-color:var(--gold-dim)}
+@media(max-width:560px){.entry{grid-template-columns:1fr}.versal{margin-bottom:.7rem}}
+
+.band{border:1px solid var(--gold-dim);margin:0 0 .9rem;background:var(--umber-2)}
+.band img{width:100%;aspect-ratio:16/9;object-fit:cover}
+.gallery{display:grid;gap:4px;grid-template-columns:repeat(2,1fr);margin:0 0 .9rem}
+.gallery.n1{grid-template-columns:1fr}
+.gallery.n3 :first-child{grid-column:1/-1}
+.gallery img{width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;cursor:zoom-in;
+  background:var(--umber-2);border:1px solid var(--gold-dim)}
+.gallery img:hover{border-color:var(--gold)}
+.embed{position:relative;aspect-ratio:16/9;background:#0d0a06;border:1px solid var(--gold-dim);
+  overflow:hidden;margin:0 0 .9rem}
+.embed iframe,.embed video{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ============ the vellum leaf ============ */
+.leaf{position:relative;background:var(--vellum);color:var(--iron);max-width:70ch;
+  padding:clamp(1.7rem,4vw,3.2rem) clamp(1.5rem,4vw,3.4rem);
+  border:1px solid rgba(122,92,30,.5);
+  background-image:radial-gradient(ellipse at 18% 0%,rgba(255,252,240,.75),transparent 58%),
+    radial-gradient(ellipse at 88% 100%,rgba(150,124,74,.3),transparent 52%);
+  box-shadow:0 22px 60px rgba(0,0,0,.6)}
+.leaf::before{content:"";position:absolute;inset-inline-start:0;inset-block:0;width:4px;
+  background:linear-gradient(var(--gold),rgba(201,162,39,.2))}
+.leaf .meta{color:#6B5A38;border-bottom:1px solid rgba(42,33,24,.2);padding-bottom:.6rem}
+.leaf .meta .kind{color:var(--vermilion)}
+.leaf .meta a{color:#6B5A38}
+.leaf .meta a:hover{color:var(--vermilion)}
+.leaf h1{font-family:var(--read);font-weight:600;font-size:clamp(1.9rem,4.2vw,2.7rem);
+  line-height:1.14;margin:.7rem 0 .2rem;color:var(--iron)}
+.leaf .rubric{font-family:var(--label);font-size:.74rem;letter-spacing:.1em;color:var(--vermilion);margin:0 0 1.4rem}
+.prose{font-size:1.18rem;line-height:1.78}
+.prose p{margin:0 0 1.15rem}
+.prose>p:first-of-type::first-letter{font-family:var(--blackletter);font-size:3.4em;
+  line-height:.82;float:left;margin:.05em .1em 0 0;color:var(--vermilion)}
+.prose h2{font-weight:600;font-size:1.5rem;margin:2rem 0 .6rem;color:#3D2F18}
+.prose h3{font-weight:600;font-size:1.2rem;margin:1.6rem 0 .4rem;color:#3D2F18}
+.prose ul,.prose ol{margin:0 0 1.15rem;padding-inline-start:1.4rem}
+.prose li{margin:0 0 .35rem}
+.prose li::marker{color:var(--vermilion)}
+.prose blockquote{margin:1.5rem 0;padding-inline-start:1.1rem;
+  border-inline-start:2px solid var(--vermilion);font-style:italic;color:#4A3C22}
+.prose blockquote p:last-child{margin:0}
+.prose a{color:#7A5C1E;border-bottom:1px solid rgba(122,92,30,.45)}
+.prose a:hover{color:var(--vermilion);border-bottom-color:var(--vermilion)}
+.prose code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.84em;
+  background:rgba(42,33,24,.08);border:1px solid rgba(42,33,24,.16);padding:.05em .3em}
+.prose pre{background:#241C12;color:var(--parch);padding:.9rem 1rem;overflow-x:auto}
+.prose pre code{background:none;border:0;color:inherit;font-size:.85rem}
+.prose hr{border:0;border-top:1px solid rgba(42,33,24,.25);margin:2rem 0}
+.prose figure{margin:1.6rem 0}
+.prose figure img{border:1px solid rgba(42,33,24,.3)}
+.prose figcaption{font-family:var(--label);font-size:.76rem;color:#6B5A38;margin-top:.4rem}
+.colophon{max-width:70ch;font-family:var(--label);font-size:.74rem;letter-spacing:.05em;
+  color:var(--parch-mute);margin:.7rem 0 0;text-align:end}
+
+/* ---- direction follows the TEXT, not the interface ---- */
+.rtl-text{font-family:var(--naskh);line-height:2.05}
+.rtl-text h1,.rtl-text h2,.rtl-text h3{font-family:var(--naskh);line-height:1.6}
+.rubric.rtl-text,.colophon.rtl-text{letter-spacing:0}
+/* Arabic is cursive: a floated initial would tear the first word apart.
+   An illuminated ornament does the same job without breaking the script. */
+.prose.rtl-text>p:first-of-type::first-letter{font-family:inherit;font-size:1em;line-height:inherit;
+  float:none;margin:0;color:inherit}
+.prose.rtl-text>p:first-of-type::before{content:"\06DE  ";color:var(--gold);font-size:1.25em;line-height:1}
+.prose.rtl-text blockquote{font-style:normal}
+.entry-body.rtl-text h3,.entry-body.rtl-text .excerpt{font-family:var(--naskh);line-height:1.9}
+
+/* ============ share ============ */
+.share{max-width:70ch;margin-top:2.2rem;border-top:1px solid var(--gold-dim);padding-top:1rem}
+.share h4{font-family:var(--display);font-size:1.45rem;font-weight:400;color:var(--gold);margin:0 0 .7rem}
+html[lang="ar"] .share h4{font-family:var(--kufi);font-size:1.1rem;font-weight:600}
+.share-row{display:flex;gap:.35rem;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--label);font-size:.8rem;
+  letter-spacing:.03em;border:1px solid var(--rule);padding:.28rem .7rem;color:var(--parch)}
+.chip:hover{border-color:var(--gold);color:var(--gold-soft)}
+
+/* ============ subscribe ============ */
+.sub-form{display:flex;gap:.35rem;flex-wrap:wrap}
+.sub-form .field{flex:1 1 9rem;min-width:0}
+.sub-ok{font-size:.96rem;color:var(--gold-soft);margin:.5rem 0 0;line-height:1.5}
+.subscribe-wide{max-width:70ch;margin:2.2rem 0 0;border:1px solid var(--gold-dim);
+  padding:1.4rem;background:rgba(42,30,18,.72)}
+.subscribe-wide h3{font-family:var(--display);font-size:1.7rem;font-weight:400;color:var(--gold);
+  margin:0 0 .4rem;line-height:1.1}
+html[lang="ar"] .subscribe-wide h3{font-family:var(--kufi);font-size:1.25rem;font-weight:600;line-height:1.5}
+.subscribe-wide p{color:var(--parch-mute);margin:0 0 .85rem;max-width:52ch}
+
+/* ============ scriptorium ============ */
+.scribe-head{border:1px solid var(--gold-dim);background:rgba(42,30,18,.72);padding:1.1rem 1.2rem;margin-bottom:1.6rem}
+.scribe-head h2{font-family:var(--display);font-size:1.9rem;font-weight:400;color:var(--gold);margin:0 0 .2rem;line-height:1.05}
+html[lang="ar"] .scribe-head h2{font-family:var(--kufi);font-size:1.4rem;font-weight:600;line-height:1.5}
+.scribe-head p{color:var(--parch-mute);margin:0;max-width:60ch}
+.panel-sec{border-top:1px solid var(--rule);padding-top:1.2rem;margin-top:1.9rem}
+.panel-sec:first-of-type{border-top:0;margin-top:0;padding-top:0}
+.panel-sec h2{font-family:var(--display);font-size:1.6rem;font-weight:400;color:var(--gold);margin:0 0 .3rem;line-height:1.08}
+html[lang="ar"] .panel-sec h2{font-family:var(--kufi);font-size:1.25rem;font-weight:600;line-height:1.5}
+.lead{color:var(--parch-mute);margin:0 0 1rem;max-width:60ch}
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  padding:.55rem 0;border-bottom:1px dotted var(--rule)}
+.list .grow{flex:1 1 12rem;min-width:0}
+.list .ttl{display:block;font-size:1.05rem;color:var(--parch);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list .sub{font-family:var(--label);font-size:.72rem;letter-spacing:.04em;color:var(--parch-mute)}
+.stat-row{display:flex;gap:1.9rem;flex-wrap:wrap;margin:0 0 1.3rem}
+.stat b{display:block;font-family:var(--display);font-size:2.2rem;font-weight:400;color:var(--gold);line-height:1}
+html[lang="ar"] .stat b{font-family:var(--kufi);font-size:1.7rem;font-weight:600}
+.stat span{font-family:var(--label);font-size:.72rem;letter-spacing:.05em;color:var(--parch-mute)}
+.langtabs{display:flex;gap:.3rem;margin:0 0 .6rem}
+.langtabs button{font-family:var(--label);font-size:.78rem;letter-spacing:.04em;
+  border:1px solid var(--rule);padding:.22rem .65rem;color:var(--parch-mute)}
+.langtabs button[aria-pressed="true"]{color:var(--gold);border-color:var(--gold-dim);background:rgba(201,162,39,.1)}
+
+.dispatch{border:1px solid var(--gold-dim);padding:1rem 1.1rem;background:rgba(42,30,18,.6)}
+.batch-row{display:flex;gap:.4rem;flex-wrap:wrap;margin:.8rem 0 0}
+.steps{counter-reset:s;list-style:none;margin:0 0 1rem;padding:0}
+.steps li{counter-increment:s;position:relative;padding-inline-start:2.1rem;margin:0 0 .6rem;
+  color:var(--parch-mute);line-height:1.55}
+.steps li::before{content:counter(s,upper-roman) ".";position:absolute;inset-inline-start:0;
+  font-family:var(--label);color:var(--gold);font-size:.85rem}
+
+/* ============ misc ============ */
+.empty{border:1px solid var(--gold-dim);padding:1.9rem;max-width:46ch;background:rgba(42,30,18,.72)}
+.empty h3{font-family:var(--display);font-size:1.7rem;font-weight:400;color:var(--gold);margin:0 0 .4rem;line-height:1.1}
+html[lang="ar"] .empty h3{font-family:var(--kufi);font-size:1.25rem;font-weight:600;line-height:1.5}
+.empty p{color:var(--parch-mute);margin:0 0 1rem}
+.back{display:inline-block;font-family:var(--label);font-size:.8rem;letter-spacing:.04em;
+  color:var(--parch-mute);margin:0 0 1rem}
+.back:hover{color:var(--gold-soft)}
+.warnbox{border:1px solid rgba(193,53,43,.45);background:rgba(193,53,43,.1);padding:.8rem .95rem;
+  font-size:.98rem;line-height:1.55;color:#E8C9C4;margin:0 0 1.2rem;max-width:62ch}
+.notebox{border:1px solid var(--gold-dim);background:rgba(201,162,39,.08);padding:.8rem .95rem;
+  font-size:.98rem;line-height:1.55;color:var(--parch);margin:0 0 1.2rem;max-width:62ch}
+.toast{position:fixed;inset-inline:0;bottom:22px;z-index:60;display:flex;justify-content:center;
+  pointer-events:none;opacity:0;transition:opacity .18s ease}
+.toast.on{opacity:1}
+.toast span{background:var(--gold);color:var(--umber);font-family:var(--label);font-size:.84rem;
+  padding:.45rem 1rem;box-shadow:0 6px 24px rgba(0,0,0,.6)}
+.lightbox{position:fixed;inset:0;z-index:70;background:rgba(12,8,4,.95);display:none;place-items:center;padding:24px}
+.lightbox.on{display:grid}
+.lightbox img{max-width:100%;max-height:88vh;width:auto;border:1px solid var(--gold-dim)}
+.lightbox .x{position:absolute;top:12px;inset-inline-end:16px;font-size:1.8rem;color:var(--gold)}
+.loading{font-family:var(--label);font-size:.9rem;color:var(--parch-mute);padding:2.5rem 0;letter-spacing:.05em}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <svg class="miniature" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <pattern id="diaper" width="56" height="56" patternUnits="userSpaceOnUse">
+        <rect width="56" height="56" fill="#3A2A18"/>
+        <path d="M0 28 L28 0 L56 28 L28 56 Z" fill="none" stroke="#C9A227" stroke-width="1" opacity=".55"/>
+        <circle cx="28" cy="28" r="2.6" fill="#C9A227" opacity=".6"/>
+        <path d="M28 19 q5 9 0 18 q-5 -9 0 -18" fill="#C1352B" opacity=".45"/>
+      </pattern>
+      <linearGradient id="rock" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#2C4E8C"/><stop offset="1" stop-color="#16284B"/>
+      </linearGradient>
+      <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#5A7E55"/><stop offset="1" stop-color="#31492F"/>
+      </linearGradient>
+      <pattern id="vineTile" width="118" height="240" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="#C9A227" stroke-width="2.4" stroke-linecap="round">
+          <path d="M59 0 C 22 40, 96 80, 59 120 C 22 160, 96 200, 59 240"/>
+        </g>
+        <g fill="#C9A227" opacity=".85">
+          <path d="M40 34 c -20 -10 -30 4 -25 16 c 15 4 24 -6 25 -16 z"/>
+          <path d="M78 96 c 20 -10 30 4 25 16 c -15 4 -24 -6 -25 -16 z"/>
+          <path d="M40 154 c -20 -10 -30 4 -25 16 c 15 4 24 -6 25 -16 z"/>
+          <path d="M78 216 c 20 -10 30 4 25 16 c -15 4 -24 -6 -25 -16 z"/>
+        </g>
+        <g fill="#C1352B">
+          <circle cx="30" cy="72" r="5"/><circle cx="88" cy="134" r="5"/><circle cx="30" cy="192" r="5"/>
+        </g>
+        <g fill="#4A6B4A">
+          <path d="M59 58 c -14 6 -18 18 -8 24 c 10 -2 12 -14 8 -24 z"/>
+          <path d="M59 178 c 14 6 18 18 8 24 c -10 -2 -12 -14 -8 -24 z"/>
+        </g>
+      </pattern>
+    </defs>
+
+    <rect width="1200" height="800" fill="url(#diaper)"/>
+
+    <g fill="url(#rock)" stroke="#0E1B33" stroke-width="2">
+      <path d="M0 470 q60 -80 130 -34 q40 -76 108 -40 q54 -66 118 -18 l0 190 L0 568 Z"/>
+      <path d="M860 452 q66 -74 136 -30 q52 -70 122 -26 q46 -40 82 -12 l0 184 -340 0 Z"/>
+    </g>
+
+    <g stroke="#241203" stroke-width="2.5">
+      <rect x="470" y="392" width="260" height="120" fill="#9B7B4E"/>
+      <g fill="#9B7B4E">
+        <rect x="470" y="376" width="18" height="18"/><rect x="506" y="376" width="18" height="18"/>
+        <rect x="542" y="376" width="18" height="18"/><rect x="578" y="376" width="18" height="18"/>
+        <rect x="614" y="376" width="18" height="18"/><rect x="650" y="376" width="18" height="18"/>
+        <rect x="686" y="376" width="18" height="18"/>
+      </g>
+      <rect x="436" y="330" width="62" height="182" fill="#B08A55"/>
+      <path d="M430 330 L467 286 L504 330 Z" fill="#C1352B"/>
+      <rect x="700" y="312" width="70" height="200" fill="#B08A55"/>
+      <path d="M694 312 L735 262 L776 312 Z" fill="#C1352B"/>
+      <rect x="586" y="286" width="52" height="110" fill="#C0A06A"/>
+      <path d="M580 286 L612 240 L644 286 Z" fill="#C1352B"/>
+      <path d="M576 512 L576 452 a24 24 0 0 1 48 0 l0 60 Z" fill="#3C2A14"/>
+      <g fill="#2B1D0C">
+        <rect x="452" y="356" width="14" height="22"/><rect x="470" y="356" width="14" height="22"/>
+        <rect x="716" y="338" width="16" height="24"/><rect x="740" y="338" width="16" height="24"/>
+        <rect x="600" y="310" width="16" height="24"/>
+      </g>
+    </g>
+
+    <path d="M0 560 Q300 512 600 528 T1200 540 L1200 800 L0 800 Z" fill="url(#ground)"/>
+    <g stroke="#22331F" stroke-width="2.5">
+      <g fill="#3F6038">
+        <circle cx="196" cy="592" r="46"/><circle cx="1016" cy="606" r="40"/><circle cx="346" cy="640" r="30"/>
+      </g>
+      <g fill="#4A3016">
+        <rect x="190" y="630" width="12" height="54"/><rect x="1010" y="640" width="12" height="48"/>
+        <rect x="341" y="666" width="10" height="40"/>
+      </g>
+      <g fill="#C1352B" stroke="none" opacity=".85">
+        <circle cx="178" cy="580" r="5"/><circle cx="214" cy="600" r="5"/><circle cx="1004" cy="598" r="5"/>
+      </g>
+    </g>
+    <g fill="#C9A227" opacity=".5" stroke="none">
+      <circle cx="120" cy="724" r="4"/><circle cx="470" cy="700" r="4"/><circle cx="820" cy="736" r="4"/>
+      <circle cx="1104" cy="702" r="4"/><circle cx="660" cy="758" r="4"/>
+    </g>
+  </svg>
+
+  <div class="painting" id="painting"></div>
+
+  <svg class="vine vine-l" preserveAspectRatio="none" viewBox="0 0 118 240">
+    <rect width="118" height="240" fill="url(#vineTile)"/>
+  </svg>
+  <svg class="vine vine-r" preserveAspectRatio="none" viewBox="0 0 118 240">
+    <rect width="118" height="240" fill="url(#vineTile)"/>
+  </svg>
+</div>
+<div class="vignette" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="topbar"><div class="topbar-in" id="topbar"></div></header>
+  <div class="shell">
+    <aside class="rail" id="rail"></aside>
+    <main class="main" id="main"><p class="loading">Opening the library…</p></main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span></span></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Photo">
+  <button class="x" id="lb-close" aria-label="Close">&times;</button>
+  <img id="lb-img" alt="">
+</div>
+<script>
+"use strict";
+/* ==========================================================
+   SCRIPTORIUM — a personal library, painted and bound
+   ========================================================== */
+
+/* ---------- 1. Language ---------- */
+var T = {
+  en: {
+    readingRoom:"Reading Room", scriptorium:"Scriptorium",
+    posts:"Posts", archive:"Archive", about:"About",
+    subscribe:"Subscribe", email:"you@email.com", subBtn:"Join",
+    onList:"You are entered in the register. New posts go to ", already:"You are already in the register.",
+    searchPh:"search the shelves", latest:"Latest Manuscripts", taggedAs:"Marked ", resultsFor:"Search: ",
+    noMatches:"Nothing found", noMatchesBody:"No manuscript matches that word. Try another, or return to the shelves.",
+    showAll:"Show every post", readFull:"Read in full", seeSet:"See the full set", watchIt:"Watch",
+    article:"Article", photos:"Plates", video:"Motion", draft:"Draft", minRead:" min read",
+    allPosts:"All posts", keepReading:"Also in the library", shareThis:"Send this abroad",
+    copyLink:"Copy link", copyCaption:"Copy caption", more:"More",
+    elsewhere:"Found elsewhere", nothingYet:"The shelves are bare",
+    nothingYetBody:"No manuscript has been copied yet. Open the Scriptorium to write the first, or shelve a few examples.",
+    writeFirst:"Write the first post", addExamples:"Shelve examples",
+    newPost:"A new manuscript", editPost:"Revise manuscript", titleL:"Title", whatPosting:"What are you copying?",
+    anArticle:"An article", photosOpt:"Plates (photographs)", aVideo:"Motion (video)",
+    words:"The text", tagsL:"Marks", dateL:"Date",
+    publish:"Publish", saveChanges:"Save revisions", saveDraft:"Keep as draft",
+    preview:"Preview", hidePreview:"Hide preview", deletePost:"Burn this manuscript",
+    desk:"The Scribe's Desk", deskBody:"Everything you write, revise and send from here. Readers never need to open this panel.",
+    publishedN:"published", draftsN:"drafts", subscribersN:"in the register",
+    yourPosts:"Your manuscripts", noPostsYet:"Nothing written yet.",
+    register:"The register", registerBody:"Emails gathered by the subscribe form. Nothing is sent automatically — export the list into a newsletter tool when you want to send a post out.",
+    exportCsv:"Download CSV", copyEmails:"Copy all emails", remove:"Strike out",
+    noSubs:"No one has signed the register yet.",
+    settings:"Library settings", blogName:"Library name", yourName:"Your name",
+    taglineL:"Motto", aboutYou:"About you", subPitch:"Subscribe pitch", webAddress:"Web address",
+    webAddressHint:"Once your library lives at a real address, put it here so share buttons point people to the right place.",
+    saveSettings:"Save settings", yourData:"Your archive",
+    yourDataBody:"Everything lives in this one page. Export a backup, or carry it with you.",
+    exportAll:"Export everything", importBackup:"Import a backup",
+    backToPosts:"Back to the shelves", backToPost:"Back to the manuscript",
+    notFound:"That manuscript is not here", notFoundBody:"It may have been renamed, or withdrawn from the shelves.",
+    unpublish:"Withdraw", publishIt:"Publish", edit:"Revise", write:"Write",
+    imgLines:"Photograph links, one per line", imgHint:"Paste image URLs. Host photos somewhere public and paste the direct link.",
+    vidLink:"Video link", vidHint:"YouTube, Vimeo and direct .mp4 links all play inline.",
+    coverL:"Cover image (optional)", mdHint:"Markdown works: ## heading, **bold**, *italic*, [link](url), > quote, - list.",
+    bodyPh:"Write here.\n\n## A heading\n\n**bold**, *italic*, [a link](https://example.com)\n\n> a quote\n\n- a list",
+    contentIn:"Text in", enTab:"English", arTab:"العربية",
+    arNote:"Leave the Arabic blank and readers who choose Arabic will see the English version.",
+    folio:"fol. ", liked:"Was this worth your time?", copied:"Copied", capCopied:"Caption copied",
+    published2:"Published", withdrawn:"Withdrawn", deleted:"Manuscript burned", saved:"Saved as draft",
+    settingsSaved:"Settings saved", subscribed:"Entered in the register", removed:"Struck out",
+    imported:"Archive imported", badFile:"That file is not a valid archive",
+    badEmail:"That address does not look right", titleFirst:"Give it a title first",
+    seeded:"Examples shelved — revise or burn them at will",
+    confirmDel:"Burn this manuscript for good?", openScript:"Open the Scriptorium",
+    notLock:"This panel is a convenience, not a lock. Anyone visiting can open it, so keep nothing private here.",
+    saveFailed:"Could not save — try again",
+    saveFull:"This browser's store is full. Export a backup, then remove some photo links.",
+    storeWhere:"Where this library is kept:",
+    storeClaude:"in this conversation — it survives closing the tab, and everyone who opens this artifact sees the same shelves.",
+    storeLocal:"in this browser, on this device — it survives closing the tab, but another device or another browser sees an empty library. Bind a copy below to publish it.",
+    storeMemory:"nowhere. This page is sandboxed so tightly that nothing can be written, so the library empties when the tab closes. Export a backup before you leave.",
+    ghTitle:"Publish on GitHub Pages",
+    ghBody:"GitHub will host this library for nothing, at yourname.github.io, and you never have to save a file to your machine — the whole page goes onto your clipboard and you paste it straight into the browser.",
+    ghUserL:"Your GitHub username", ghUseAddress:"Use this as my address",
+    ghNeedUser:"Type your GitHub username first",
+    ghAddressSet:"Share buttons and letters now point at your GitHub address",
+    ghRepoName:"Name the repository exactly this", ghAddress:"Your library will live here",
+    ghVisit:"Open",
+    ghStep1:"Sign in at github.com and create a new repository named exactly as shown above. Keep it public and tick 'Add a README' so it is not empty.",
+    ghStep2:"Inside that repository choose Add file, then Create new file, and name it index.html.",
+    ghStep3:"Press 'Copy the whole page' below, paste into the editor, and commit the file.",
+    ghStep4:"Open Settings, then Pages. Under Build and deployment the source should read 'Deploy from a branch' with your default branch chosen. It is usually set already.",
+    ghStep5:"Press 'Use this as my address' above so share links and letters point at the live site.",
+    ghDocs:"GitHub's own guide",
+    ghWait:"The first publish can take up to ten minutes. After that, every new manuscript means editing index.html again and pasting a fresh copy — the published page is a snapshot, not a window.",
+    copyPage:"Copy the whole page",
+    pageCopied:"The whole page is on your clipboard — paste it into index.html",
+    bind:"Bind a copy for the world",
+    bindBody:"A hosted page has no server to ask for your posts, so the posts have to travel inside the file. Binding writes a fresh copy of this whole library — every manuscript, plate and setting sealed into one file — that shows the same shelves to every visitor.",
+    bindStep1:"Write your manuscripts here first, until the library reads the way you want it.",
+    bindStep2:"Press the button. A file named index.html is written to your machine.",
+    bindStep3:"Drop that one file onto Netlify Drop, GitHub Pages or any host. That is your website.",
+    bindBtn:"Bind the volume", bound:"Bound — index.html is yours to publish",
+    bindFailed:"The volume could not be bound",
+    bindHint:"Bind again after each new manuscript — the published copy is a snapshot, not a window. Readers who subscribe on the published copy still reach you through the letter service above.",
+    onListSent:"You are entered in the register and passed to the letter service. Letters go to ",
+    sendLetter:"Send a letter", pickPost:"Choose a manuscript first", letterOpened:"Letter opened in your mail app",
+    sendLetterBody:"This page cannot send mail on its own — no page can. What it can do is write the letter for you and hand it to your own mail app with every reader in BCC. Choose a manuscript, press the button, then press send.",
+    whichPost:"Which manuscript are you sending?", openLetter:"Write the letter",
+    copyLetter:"Copy the letter text", copyBcc:"Copy the BCC list",
+    bccHint:"Readers go in BCC, so no one sees anyone else's address. Long registers are split into batches of 40 to stay inside the limit mail apps place on a single link.",
+    letterRead:"Read it here:",
+    autoSend:"Sending it automatically instead",
+    autoSendBody:"If you would rather not send by hand, point the subscribe form at a letter service and new readers will be added to it directly. Buttondown, MailerLite and Mailchimp all give you a form address for this.",
+    autoStep1:"Open a free account with a letter service and find its embedded form.",
+    autoStep2:"Copy the address the form submits to, and the name of its email box — usually just 'email'.",
+    autoStep3:"Paste both below and save. New readers are then written to both this register and the service.",
+    listUrl:"Letter service form address", listField:"Name of the email box",
+    listHint:"Left empty, the form only keeps addresses here and you send letters by hand, which works perfectly well.",
+    bgPainting:"Background painting", 
+    bgHint:"Paste a link to any painting you like and it will hang behind the library. Wikimedia Commons has thousands of manuscript miniatures free to use. Left empty, the painted background stays as it is.",
+    counts:function(p,s){ return p+" manuscripts · "+s+" readers"; }
+  },
+  ar: {
+    readingRoom:"قاعة القراءة", scriptorium:"غرفة النسخ",
+    posts:"المنشورات", archive:"الأرشيف", about:"نبذة",
+    subscribe:"اشترك", email:"بريدك الإلكتروني", subBtn:"انضم",
+    onList:"تم تسجيلك في السجل. ستصل المقالات الجديدة إلى ", already:"أنت مسجّل في السجل من قبل.",
+    searchPh:"ابحث في الرفوف", latest:"أحدث المخطوطات", taggedAs:"موسوم بـ ", resultsFor:"بحث: ",
+    noMatches:"لا نتائج", noMatchesBody:"لا توجد مخطوطة تطابق هذه الكلمة. جرّب كلمة أخرى أو عد إلى الرفوف.",
+    showAll:"اعرض كل المنشورات", readFull:"اقرأ كاملاً", seeSet:"شاهد كل الصور", watchIt:"شاهد",
+    article:"مقال", photos:"صور", video:"فيديو", draft:"مسودة", minRead:" دقيقة قراءة",
+    allPosts:"كل المنشورات", keepReading:"أيضاً في المكتبة", shareThis:"انشر هذا",
+    copyLink:"انسخ الرابط", copyCaption:"انسخ النص", more:"المزيد",
+    elsewhere:"في مواضع أخرى", nothingYet:"الرفوف فارغة",
+    nothingYetBody:"لم تُنسخ أي مخطوطة بعد. افتح غرفة النسخ لتكتب الأولى، أو ضع بعض الأمثلة على الرفوف.",
+    writeFirst:"اكتب أول منشور", addExamples:"ضع أمثلة",
+    newPost:"مخطوطة جديدة", editPost:"مراجعة المخطوطة", titleL:"العنوان", whatPosting:"ما الذي تنسخه؟",
+    anArticle:"مقال", photosOpt:"صور", aVideo:"فيديو",
+    words:"النص", tagsL:"الوسوم", dateL:"التاريخ",
+    publish:"انشر", saveChanges:"احفظ المراجعات", saveDraft:"احفظ كمسودة",
+    preview:"معاينة", hidePreview:"إخفاء المعاينة", deletePost:"احرق هذه المخطوطة",
+    desk:"مكتب الناسخ", deskBody:"من هنا تكتب وتراجع وترسل كل شيء. لا يحتاج القراء إلى فتح هذه اللوحة.",
+    publishedN:"منشور", draftsN:"مسودات", subscribersN:"في السجل",
+    yourPosts:"مخطوطاتك", noPostsYet:"لم تكتب شيئاً بعد.",
+    register:"السجل", registerBody:"عناوين البريد التي جمعها نموذج الاشتراك. لا يُرسل شيء تلقائياً — صدّر القائمة إلى أداة نشرات بريدية عندما تريد إرسال مقال.",
+    exportCsv:"نزّل CSV", copyEmails:"انسخ كل العناوين", remove:"اشطب",
+    noSubs:"لم يوقّع أحد في السجل بعد.",
+    settings:"إعدادات المكتبة", blogName:"اسم المكتبة", yourName:"اسمك",
+    taglineL:"الشعار", aboutYou:"نبذة عنك", subPitch:"عبارة الاشتراك", webAddress:"عنوان الموقع",
+    webAddressHint:"عندما تصبح لمكتبتك عنوان حقيقي، ضعه هنا لتشير أزرار المشاركة إلى الموضع الصحيح.",
+    saveSettings:"احفظ الإعدادات", yourData:"أرشيفك",
+    yourDataBody:"كل شيء موجود في هذه الصفحة الواحدة. صدّر نسخة احتياطية أو احملها معك.",
+    exportAll:"صدّر كل شيء", importBackup:"استورد نسخة احتياطية",
+    backToPosts:"رجوع إلى الرفوف", backToPost:"رجوع إلى المخطوطة",
+    notFound:"هذه المخطوطة غير موجودة", notFoundBody:"ربما أُعيد تسميتها أو سُحبت من الرفوف.",
+    unpublish:"اسحب", publishIt:"انشر", edit:"راجع", write:"اكتب",
+    imgLines:"روابط الصور، رابط في كل سطر", imgHint:"الصق روابط الصور. استضف صورك في مكان عام والصق الرابط المباشر.",
+    vidLink:"رابط الفيديو", vidHint:"يوتيوب وفيميو وروابط mp4 المباشرة تُشغّل داخل الصفحة.",
+    coverL:"صورة الغلاف (اختياري)", mdHint:"يعمل Markdown: ## عنوان، **عريض**، *مائل*، [رابط](url)، > اقتباس، - قائمة.",
+    bodyPh:"اكتب هنا.\n\n## عنوان فرعي\n\n**عريض**، *مائل*، [رابط](https://example.com)\n\n> اقتباس\n\n- قائمة",
+    contentIn:"النص بلغة", enTab:"English", arTab:"العربية",
+    arNote:"إن تركت العربية فارغة سيرى من يختار العربية النسخة الإنجليزية.",
+    folio:"ورقة ", liked:"هل استحق هذا وقتك؟", copied:"تم النسخ", capCopied:"تم نسخ النص",
+    published2:"نُشر", withdrawn:"سُحب", deleted:"أُحرقت المخطوطة", saved:"حُفظ كمسودة",
+    settingsSaved:"حُفظت الإعدادات", subscribed:"تم التسجيل في السجل", removed:"شُطب",
+    imported:"استُورد الأرشيف", badFile:"هذا الملف ليس أرشيفاً صالحاً",
+    badEmail:"هذا العنوان لا يبدو صحيحاً", titleFirst:"أضف عنواناً أولاً",
+    seeded:"وُضعت الأمثلة على الرفوف — راجعها أو احرقها كما تشاء",
+    confirmDel:"أتريد حرق هذه المخطوطة نهائياً؟", openScript:"افتح غرفة النسخ",
+    notLock:"هذه اللوحة للتيسير لا للحماية. يمكن لأي زائر فتحها، فلا تحفظ فيها شيئاً خاصاً.",
+    saveFailed:"تعذّر الحفظ — أعد المحاولة",
+    saveFull:"مخزن هذا المتصفح ممتلئ. صدّر نسخة احتياطية ثم احذف بعض روابط الصور.",
+    storeWhere:"أين تُحفظ هذه المكتبة:",
+    storeClaude:"في هذه المحادثة — تبقى بعد إغلاق التبويب، ويرى كل من يفتح هذه الصفحة الرفوف نفسها.",
+    storeLocal:"في هذا المتصفح على هذا الجهاز — تبقى بعد إغلاق التبويب، لكن أي جهاز آخر أو متصفح آخر سيرى مكتبة فارغة. جلّد نسخة أدناه لتنشرها.",
+    storeMemory:"لا تُحفظ في أي مكان. هذه الصفحة مقيّدة بحيث لا يمكن الكتابة فيها، فتفرغ المكتبة عند إغلاق التبويب. صدّر نسخة احتياطية قبل أن تغادر.",
+    ghTitle:"النشر على GitHub Pages",
+    ghBody:"يستضيف GitHub هذه المكتبة مجاناً على عنوان yourname.github.io، ولن تحتاج إلى حفظ أي ملف على جهازك — تُنسخ الصفحة كاملة إلى الحافظة وتلصقها مباشرة في المتصفح.",
+    ghUserL:"اسم المستخدم في GitHub", ghUseAddress:"اجعله عنواني",
+    ghNeedUser:"اكتب اسم المستخدم في GitHub أولاً",
+    ghAddressSet:"أزرار المشاركة والرسائل تشير الآن إلى عنوانك على GitHub",
+    ghRepoName:"سمِّ المستودع بهذا الاسم تماماً", ghAddress:"ستكون مكتبتك هنا",
+    ghVisit:"افتح",
+    ghStep1:"سجّل الدخول في github.com وأنشئ مستودعاً جديداً بالاسم الظاهر أعلاه تماماً. اجعله عاماً وفعّل خيار إضافة ملف README حتى لا يكون فارغاً.",
+    ghStep2:"داخل المستودع اختر Add file ثم Create new file، وسمِّ الملف index.html.",
+    ghStep3:"اضغط «انسخ الصفحة كاملة» أدناه، والصقها في المحرر، ثم احفظ الملف.",
+    ghStep4:"افتح Settings ثم Pages. تحت Build and deployment يجب أن يكون المصدر «Deploy from a branch» مع فرعك الافتراضي. غالباً يكون مضبوطاً مسبقاً.",
+    ghStep5:"اضغط «اجعله عنواني» أعلاه لتشير أزرار المشاركة والرسائل إلى الموقع المنشور.",
+    ghDocs:"دليل GitHub الرسمي",
+    ghWait:"قد يستغرق النشر الأول عشر دقائق. وبعدها، كل مخطوطة جديدة تعني تحرير index.html ولصق نسخة جديدة — فالصفحة المنشورة لقطة لا نافذة.",
+    copyPage:"انسخ الصفحة كاملة",
+    pageCopied:"الصفحة كاملة في الحافظة — الصقها في index.html",
+    bind:"جلّد نسخة للعالم",
+    bindBody:"الصفحة المستضافة لا تملك خادماً تسأله عن منشوراتك، لذا يجب أن تسافر المنشورات داخل الملف نفسه. التجليد يكتب نسخة جديدة من المكتبة كاملة — كل مخطوطة وصورة وإعداد مختومة في ملف واحد — تعرض الرفوف نفسها لكل زائر.",
+    bindStep1:"اكتب مخطوطاتك هنا أولاً حتى تصبح المكتبة كما تريدها.",
+    bindStep2:"اضغط الزر. يُكتب ملف باسم index.html إلى جهازك.",
+    bindStep3:"ارفع هذا الملف الواحد إلى Netlify Drop أو GitHub Pages أو أي مستضيف. هذا هو موقعك.",
+    bindBtn:"جلّد المجلد", bound:"تم التجليد — index.html جاهز للنشر",
+    bindFailed:"تعذّر تجليد المجلد",
+    bindHint:"جلّد من جديد بعد كل مخطوطة — النسخة المنشورة لقطة لا نافذة. ومن يشترك في النسخة المنشورة يصلك عبر خدمة الرسائل أعلاه.",
+    onListSent:"سُجّلت في السجل وأُرسل عنوانك إلى خدمة الرسائل. ستصلك الرسائل على ",
+    sendLetter:"أرسل رسالة", pickPost:"اختر مخطوطة أولاً", letterOpened:"فُتحت الرسالة في بريدك",
+    sendLetterBody:"هذه الصفحة لا تستطيع إرسال البريد بنفسها — ولا صفحة تستطيع. لكنها تكتب الرسالة نيابة عنك وتسلّمها إلى بريدك مع جميع القرّاء في خانة المخفية. اختر مخطوطة، اضغط الزر، ثم اضغط إرسال.",
+    whichPost:"أي مخطوطة ترسل؟", openLetter:"اكتب الرسالة",
+    copyLetter:"انسخ نص الرسالة", copyBcc:"انسخ قائمة المخفية",
+    bccHint:"توضع عناوين القرّاء في خانة المخفية فلا يرى أحد عنوان غيره. وتُقسّم السجلات الطويلة إلى دفعات من أربعين عنواناً لتبقى ضمن الحد الذي تسمح به برامج البريد.",
+    letterRead:"اقرأها هنا:",
+    autoSend:"أو الإرسال تلقائياً",
+    autoSendBody:"إن لم ترغب في الإرسال يدوياً، وجّه نموذج الاشتراك إلى خدمة رسائل بريدية ليُضاف القرّاء الجدد إليها مباشرة. تمنحك Buttondown وMailerLite وMailchimp عنوان نموذج لهذا الغرض.",
+    autoStep1:"افتح حساباً مجانياً في خدمة رسائل واعثر على نموذجها المضمّن.",
+    autoStep2:"انسخ العنوان الذي يرسل إليه النموذج، واسم خانة البريد فيه — غالباً 'email'.",
+    autoStep3:"الصق الاثنين أدناه واحفظ. عندها يُكتب القارئ الجديد في هذا السجل وفي الخدمة معاً.",
+    listUrl:"عنوان نموذج خدمة الرسائل", listField:"اسم خانة البريد",
+    listHint:"إن تركته فارغاً يحتفظ النموذج بالعناوين هنا فقط وترسل الرسائل بيدك، وهذا يفي بالغرض تماماً.",
+    bgPainting:"لوحة الخلفية",
+    bgHint:"الصق رابط أي لوحة تعجبك لتُعلّق خلف المكتبة. في ويكيميديا كومنز آلاف المنمنمات المخطوطة المتاحة للاستخدام. إن تركته فارغاً تبقى الخلفية المرسومة كما هي.",
+    counts:function(p,s){ return p+" مخطوطة · "+s+" قارئ"; }
+  }
+};
+function t(k){ var d = T[S.lang] || T.en; return d[k] !== undefined ? d[k] : (T.en[k] || k); }
+
+/* ---------- 2. Storage ---------- */
+var K_SITE = "scriptorium:site", K_SUBS = "scriptorium:subs", K_PREF = "scriptorium:pref";
+var mem = {};
+/* Where the library is kept, in order of preference:
+     "claude" — window.storage, present only inside Claude's artifact viewer.
+                Survives closing the tab and is shared with everyone who opens it.
+     "local"  — the browser's own store, used once the file is downloaded or
+                hosted. Survives closing the tab, but lives on this device only.
+     "memory" — a plain variable. Survives nothing. Last resort when a page is
+                sandboxed so tightly that even local storage is refused.           */
+var STORE_MODE = "memory";
+function detectStore(){
+  if (typeof window !== "undefined" && window.storage) return "claude";
+  try {
+    var probe = "scriptorium:probe";
+    window.localStorage.setItem(probe, "1");
+    window.localStorage.removeItem(probe);
+    return "local";
+  } catch(e){ return "memory"; }
+}
+STORE_MODE = detectStore();
+
+var store = {
+  async get(k, shared){
+    if (STORE_MODE === "claude") {
+      try { var r = await window.storage.get(k, !!shared); return r ? JSON.parse(r.value) : null; }
+      catch(e){ return null; }
+    }
+    if (STORE_MODE === "local") {
+      try { var v = window.localStorage.getItem(k); return v ? JSON.parse(v) : null; }
+      catch(e){ return null; }
+    }
+    return k in mem ? mem[k] : null;
+  },
+  async set(k, v, shared){
+    if (STORE_MODE === "claude") {
+      try { await window.storage.set(k, JSON.stringify(v), !!shared); return true; }
+      catch(e){ toast(t("saveFailed")); return false; }
+    }
+    if (STORE_MODE === "local") {
+      try { window.localStorage.setItem(k, JSON.stringify(v)); return true; }
+      catch(e){ toast(t("saveFull")); return false; }
+    }
+    mem[k] = v; return true;
+  }
+};
+
+var DEFAULTS = {
+  title:"Scriptorium", title_ar:"غرفة النسخ",
+  tagline:"A library of one: writing, plates and motion, copied by hand.",
+  tagline_ar:"مكتبة شخصية: كتابة وصور وفيديو، منسوخة بيد واحدة.",
+  author:"", author_ar:"", bio:"", bio_ar:"", siteUrl:"",
+  subCopy:"New manuscripts sent by letter. Unsubscribe whenever.",
+  subCopy_ar:"تُرسل المخطوطات الجديدة على بريدك. يمكنك إلغاء الاشتراك في أي وقت.",
+  bgUrl:"", listUrl:"", listField:"email", ghUser:"",
+  links:{ x:"", instagram:"", youtube:"", linkedin:"", github:"", website:"" }
+};
+var S = { settings:Object.assign({},DEFAULTS), posts:[], subs:[], lang:"en", panel:"read", editLang:"en", ready:false };
+
+/* ---------- 3. Helpers ---------- */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function safeUrl(u){
+  var s = String(u||"").trim();
+  if (/^(https?:|mailto:|#|\/)/i.test(s)) return s;
+  if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(s)) return "https://"+s;
+  return "";
+}
+function slugify(x){
+  var s = String(x||"").toLowerCase().replace(/[^\w\u0600-\u06FF\s-]/g,"").trim().replace(/\s+/g,"-").slice(0,60);
+  return s || "post";
+}
+function loc(o,f){
+  if (!o) return "";
+  if (S.lang === "ar") return (o[f+"_ar"] && String(o[f+"_ar"]).trim()) ? o[f+"_ar"] : (o[f]||"");
+  return (o[f] && String(o[f]).trim()) ? o[f] : (o[f+"_ar"]||"");
+}
+function fmtDate(iso){
+  var d = new Date(iso); if (isNaN(d)) return "";
+  try { return d.toLocaleDateString(S.lang==="ar"?"ar":undefined,{year:"numeric",month:"long",day:"numeric"}); }
+  catch(e){ return d.toDateString(); }
+}
+function roman(n){
+  var m=[[1000,"M"],[900,"CM"],[500,"D"],[400,"CD"],[100,"C"],[90,"XC"],[50,"L"],[40,"XL"],[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]],o="";
+  for (var i=0;i<m.length;i++) while(n>=m[i][0]){o+=m[i][1];n-=m[i][0];}
+  return o||"—";
+}
+function arNum(n){ return String(n).replace(/\d/g,function(d){ return "٠١٢٣٤٥٦٧٨٩"[+d]; }); }
+function folioNum(n){ return S.lang==="ar" ? arNum(n) : roman(n); }
+/* Which way does this text run?  Decided by the script of the characters
+   themselves, never by the interface language — an Arabic article must read
+   right-to-left even while the UI is in English. */
+var RTL_RANGE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g;
+function isRtl(txt){
+  var str = String(txt||"");
+  var rtl = (str.match(RTL_RANGE)||[]).length;
+  var ltr = (str.match(/[A-Za-z]/g)||[]).length;
+  return rtl > ltr;
+}
+function dirOf(txt){ return isRtl(txt) ? "rtl" : "ltr"; }
+/* attributes to hang on any block of user text */
+function dirAttrs(txt){
+  var d = dirOf(txt);
+  return ' dir="'+d+'"' + (d==="rtl" ? ' lang="ar"' : '');
+}
+function rtlClass(txt){ return isRtl(txt) ? " rtl-text" : ""; }
+
+function stripMd(x){
+  return String(x||"").replace(/```[\s\S]*?```/g," ").replace(/!\[[^\]]*\]\([^)]*\)/g," ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g,"$1").replace(/[#>*_`~-]/g," ").replace(/\s+/g," ").trim();
+}
+function readTime(x){
+  var w = stripMd(x).split(/\s+/).filter(Boolean).length;
+  return Math.max(1,Math.round(w/220)) + t("minRead");
+}
+function excerptOf(p){ return stripMd(loc(p,"body")).slice(0,180); }
+function lines(v){ return String(v||"").split("\n").map(function(s){return s.trim();}).filter(Boolean); }
+function toast(msg){
+  var el = document.getElementById("toast");
+  el.querySelector("span").textContent = msg;
+  el.classList.add("on");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ el.classList.remove("on"); }, 2300);
+}
+function copy(text,msg){
+  var done=function(){ toast(msg||t("copied")); };
+  if (navigator.clipboard && navigator.clipboard.writeText)
+    navigator.clipboard.writeText(text).then(done,function(){ fb(text,done); });
+  else fb(text,done);
+  function fb(x,cb){
+    var ta=document.createElement("textarea"); ta.value=x; ta.setAttribute("readonly","");
+    ta.style.position="fixed"; ta.style.top="-1000px";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); cb(); }catch(e){ toast("Copy failed"); }
+    document.body.removeChild(ta);
+  }
+}
+function download(text,name,type){
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([text],{type:type})); a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+  toast(name);
+}
+
+/* ---------- 4. Markdown-lite (escapes first) ---------- */
+function inline(x){
+  var codes=[];
+  x = x.replace(/`([^`]+)`/g,function(_,c){ codes.push(c); return "\u0000"+(codes.length-1)+"\u0000"; });
+  x = x.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,function(_,alt,u){
+    var s=safeUrl(u); return s?'<img src="'+s+'" alt="'+alt+'">':alt; });
+  x = x.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,function(_,txt,u){
+    var s=safeUrl(u); return s?'<a href="'+s+'" target="_blank" rel="noopener noreferrer">'+txt+'</a>':txt; });
+  x = x.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  x = x.replace(/(^|[\s(])\*([^*\n]+)\*/g,"$1<em>$2</em>");
+  x = x.replace(/(^|[\s(])_([^_\n]+)_/g,"$1<em>$2</em>");
+  x = x.replace(/~~([^~]+)~~/g,"<del>$1</del>");
+  return x.replace(/\u0000(\d+)\u0000/g,function(_,i){ return "<code>"+codes[+i]+"</code>"; });
+}
+function md(src){ return blocks(String(src||"").replace(/\r\n?/g,"\n").split("\n").map(esc)); }
+function blocks(ls){
+  var out=[], i=0;
+  var isBlock=function(l){
+    return /^\s*$/.test(l) || /^#{1,4}\s/.test(l) || /^&gt;\s?/.test(l) || /^```/.test(l)
+      || /^\s*([-*+]|\d+[.)])\s+/.test(l) || /^(---|\*\*\*|___)\s*$/.test(l);
+  };
+  while (i < ls.length) {
+    var l = ls[i];
+    if (/^\s*$/.test(l)) { i++; continue; }
+    var h = l.match(/^(#{1,4})\s+(.*)$/);
+    if (h) { var lv=Math.min(4,Math.max(2,h[1].length));
+      out.push("<h"+lv+' dir="auto">'+inline(h[2])+"</h"+lv+">"); i++; continue; }
+    if (/^(---|\*\*\*|___)\s*$/.test(l)) { out.push("<hr>"); i++; continue; }
+    if (/^```/.test(l)) {
+      i++; var code=[];
+      while (i<ls.length && !/^```/.test(ls[i])) { code.push(ls[i]); i++; }
+      i++; out.push("<pre><code>"+code.join("\n")+"</code></pre>"); continue;
+    }
+    if (/^&gt;\s?/.test(l)) {
+      var q=[];
+      while (i<ls.length && /^&gt;\s?/.test(ls[i])) { q.push(ls[i].replace(/^&gt;\s?/,"")); i++; }
+      out.push("<blockquote>"+blocks(q)+"</blockquote>"); continue;
+    }
+    var ulR=/^\s*[-*+]\s+/, olR=/^\s*\d+[.)]\s+/;
+    if (ulR.test(l)||olR.test(l)) {
+      var ord=olR.test(l), items=[];
+      while (i<ls.length && (ord?olR.test(ls[i]):ulR.test(ls[i]))) {
+        items.push('<li dir="auto">'+inline(ls[i].replace(ord?/^\s*\d+[.)]\s+/:/^\s*[-*+]\s+/,""))+"</li>"); i++;
+      }
+      out.push((ord?"<ol>":"<ul>")+items.join("")+(ord?"</ol>":"</ul>")); continue;
+    }
+    var img = l.match(/^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/);
+    if (img) {
+      var u=safeUrl(img[2]);
+      if (u) { out.push('<figure><img src="'+u+'" alt="'+img[1]+'">'+
+        (img[1]?"<figcaption>"+img[1]+"</figcaption>":"")+"</figure>"); i++; continue; }
+    }
+    var para=[l]; i++;
+    while (i<ls.length && !isBlock(ls[i])) { para.push(ls[i]); i++; }
+    out.push('<p dir="auto">'+inline(para.join("<br>"))+"</p>");
+  }
+  return out.join("\n");
+}
+
+/* ---------- 5. Media ---------- */
+function videoEmbed(url){
+  var u=String(url||"").trim(); if(!u) return "";
+  var yt=u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([\w-]{6,})/);
+  if (yt) return '<div class="embed"><iframe src="https://www.youtube.com/embed/'+esc(yt[1])+
+    '" title="Video" allow="accelerometer;autoplay;clipboard-write;encrypted-media;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
+  var vm=u.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vm) return '<div class="embed"><iframe src="https://player.vimeo.com/video/'+esc(vm[1])+
+    '" title="Video" allow="fullscreen;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>';
+  if (/\.(mp4|webm|ogv|ogg|mov)(\?|$)/i.test(u)) {
+    var s=safeUrl(u);
+    return s?'<div class="embed"><video controls preload="metadata" src="'+esc(s)+'"></video></div>':"";
+  }
+  var lk=safeUrl(u);
+  return lk?'<p><a href="'+esc(lk)+'" target="_blank" rel="noopener noreferrer">'+t("watchIt")+'</a></p>':"";
+}
+function galleryHtml(imgs,cap){
+  var list=(imgs||[]).map(safeUrl).filter(Boolean);
+  if (!list.length) return "";
+  return '<div class="gallery n'+Math.min(3,list.length)+'">'+list.map(function(u){
+    return '<img src="'+esc(u)+'" alt="'+esc(cap||"")+'" loading="lazy" data-zoom="'+esc(u)+'">';
+  }).join("")+'</div>';
+}
+
+/* ---------- 6. Routing ---------- */
+function route(){
+  var h=(location.hash||"#/").replace(/^#/,"");
+  var p=h.split("/").filter(Boolean);
+  return { view:p[0]||"home", arg:p.slice(1).join("/") };
+}
+function go(p){ location.hash = p; }
+var READER_VIEWS = { home:1, post:1, tag:1, search:1, archive:1, about:1 };
+
+/* ---------- 7. Share ---------- */
+function postUrl(p){
+  var base=safeUrl(S.settings.siteUrl);
+  if (!base) base=location.href.split("#")[0];
+  return base.replace(/#.*$/,"").replace(/\/$/,"")+"/#/post/"+encodeURIComponent(p.slug);
+}
+function shareHtml(p){
+  var u=postUrl(p), ti=loc(p,"title")||"", d=encodeURIComponent(u), et=encodeURIComponent(ti);
+  var nets=[
+    ["X","https://twitter.com/intent/tweet?text="+et+"&url="+d],
+    ["Facebook","https://www.facebook.com/sharer/sharer.php?u="+d],
+    ["LinkedIn","https://www.linkedin.com/sharing/share-offsite/?url="+d],
+    ["WhatsApp","https://api.whatsapp.com/send?text="+encodeURIComponent(ti+" "+u)],
+    ["Telegram","https://t.me/share/url?url="+d+"&text="+et],
+    ["Reddit","https://www.reddit.com/submit?url="+d+"&title="+et],
+    ["Email","mailto:?subject="+et+"&body="+encodeURIComponent(ti+"\n\n"+u)]
+  ];
+  return '<section class="share"><h4>'+esc(t("shareThis"))+'</h4><div class="share-row">'+
+    nets.map(function(n){ return '<a class="chip" href="'+esc(n[1])+'" target="_blank" rel="noopener noreferrer">'+n[0]+'</a>'; }).join("")+
+    '<button class="chip" data-copy-link="'+esc(p.id)+'">'+esc(t("copyLink"))+'</button>'+
+    '<button class="chip" data-copy-caption="'+esc(p.id)+'">'+esc(t("copyCaption"))+'</button>'+
+    (navigator.share?'<button class="chip" data-native="'+esc(p.id)+'">'+esc(t("more"))+'</button>':"")+
+    '</div></section>';
+}
+
+/* ---------- 8. Top bar ---------- */
+function renderTop(){
+  var pub=S.posts.filter(function(p){return p.status==="published";}).length;
+  document.getElementById("topbar").innerHTML =
+    '<div class="panels">'+
+      '<button class="ptab" id="tab-read" aria-pressed="'+(S.panel==="read")+'">'+esc(t("readingRoom"))+'</button>'+
+      '<button class="ptab scribe" id="tab-scribe" aria-pressed="'+(S.panel==="scribe")+'">'+esc(t("scriptorium"))+'</button>'+
+    '</div>'+
+    '<div class="topbar-right">'+
+      '<span class="tally">'+esc(t("counts")(pub,S.subs.length))+'</span>'+
+      '<div class="lang" role="group" aria-label="Language">'+
+        '<button data-lang="en" aria-pressed="'+(S.lang==="en")+'">EN</button>'+
+        '<button data-lang="ar" aria-pressed="'+(S.lang==="ar")+'">العربية</button>'+
+      '</div>'+
+    '</div>';
+}
+
+/* ---------- 9. Rail ---------- */
+function subFormHtml(id){
+  return '<form class="sub-form" data-sub="'+id+'">'+
+    '<label class="sr-only" for="sub-'+id+'">'+esc(t("email"))+'</label>'+
+    '<input class="field" id="sub-'+id+'" type="email" name="email" placeholder="'+esc(t("email"))+'" required autocomplete="email">'+
+    '<button class="btn solid" type="submit">'+esc(t("subBtn"))+'</button>'+
+    '</form><p class="sub-ok" data-subok="'+id+'" hidden></p>';
+}
+function renderRail(){
+  var st=S.settings, r=route(), pub=S.posts.filter(function(p){return p.status==="published";}).length;
+  var names={x:"X",instagram:"Instagram",youtube:"YouTube",linkedin:"LinkedIn",github:"GitHub",website:"Website"};
+  var socials=Object.keys(names).map(function(k){
+    var u=safeUrl(st.links&&st.links[k]);
+    return u?'<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+names[k]+'</a>':"";
+  }).filter(Boolean).join("");
+
+  var head='<a class="brand" href="#/"><h1 class="title">'+esc(loc(st,"title"))+'</h1></a>'+
+    (loc(st,"tagline")?'<p class="tagline">'+esc(loc(st,"tagline"))+'</p>':"")+
+    '<p class="tally-line">'+esc(t("counts")(pub,S.subs.length))+'</p>'+
+    (loc(st,"author")?'<p class="byline">— <b>'+esc(loc(st,"author"))+'</b></p>':"");
+
+  if (S.panel === "scribe") {
+    document.getElementById("rail").innerHTML = head +
+      '<ul class="nav">'+
+        '<li><a href="#/write"'+(r.view==="write"?' aria-current="page"':'')+'>'+esc(t("newPost"))+'</a></li>'+
+        '<li><a href="#/desk"'+(r.view==="desk"?' aria-current="page"':'')+'>'+esc(t("desk"))+'</a></li>'+
+      '</ul>'+
+      '<div class="rail-block"><h2 class="rail-h">'+esc(t("readingRoom"))+'</h2>'+
+      '<p class="rail-p">'+esc(t("notLock"))+'</p>'+
+      '<button class="btn gold sm" id="to-read">'+esc(t("readingRoom"))+'</button></div>';
+    return;
+  }
+
+  document.getElementById("rail").innerHTML = head +
+    (loc(st,"bio")?'<p class="bio">'+esc(loc(st,"bio"))+'</p>':"")+
+    '<ul class="nav">'+
+      '<li><a href="#/"'+(r.view==="home"?' aria-current="page"':'')+'>'+esc(t("posts"))+'</a></li>'+
+      '<li><a href="#/archive"'+(r.view==="archive"?' aria-current="page"':'')+'>'+esc(t("archive"))+'</a></li>'+
+      '<li><a href="#/about"'+(r.view==="about"?' aria-current="page"':'')+'>'+esc(t("about"))+'</a></li>'+
+    '</ul>'+
+    '<div class="rail-block"><h2 class="rail-h">'+esc(t("subscribe"))+'</h2>'+
+      '<p class="rail-p">'+esc(loc(st,"subCopy"))+'</p>'+subFormHtml("rail")+'</div>'+
+    (socials?'<div class="rail-block"><h2 class="rail-h">'+esc(t("elsewhere"))+'</h2><div class="social">'+socials+'</div></div>':"");
+}
+
+/* ---------- 10. Reader views ---------- */
+function visible(){ return S.posts.filter(function(p){ return p.status==="published" || S.panel==="scribe"; }); }
+function markFor(ty){ return ty==="photo"?"❖":ty==="video"?"▶":"¶"; }
+function kindName(ty){ return ty==="photo"?t("photos"):ty==="video"?t("video"):t("article"); }
+function versalOf(p){
+  var s=(loc(p,"title")||"?").trim();
+  return s.charAt(0) || "?";
+}
+function metaLine(p,inLeaf){
+  return '<p class="meta"><span class="mark">'+markFor(p.type)+'</span>'+
+    '<span class="kind">'+esc(kindName(p.type))+'</span>'+
+    '<span>'+esc(fmtDate(p.createdAt))+'</span>'+
+    (p.type==="article"?'<span>'+esc(readTime(loc(p,"body")))+'</span>':"")+
+    (p.status!=="published"?'<span class="draft-flag">'+esc(t("draft"))+'</span>':"")+
+    (inLeaf&&S.panel==="scribe"?'<a href="#/edit/'+esc(p.id)+'">'+esc(t("edit"))+'</a>':"")+
+    '</p>';
+}
+function mediaFor(p,big){
+  if (p.type==="video") return videoEmbed(p.videoUrl);
+  if (p.type==="photo") return galleryHtml(p.images,loc(p,"title"));
+  var c=safeUrl(p.cover);
+  return c?'<div class="band"><img src="'+esc(c)+'" alt="" loading="lazy"></div>':"";
+}
+function entryHtml(p){
+  var ex=excerptOf(p), full=stripMd(loc(p,"body")).length>180;
+  var cta=p.type==="photo"?t("seeSet"):p.type==="video"?t("watchIt"):t("readFull");
+  var href="#/post/"+encodeURIComponent(p.slug);
+  return '<article class="entry">'+
+    '<div class="versal" aria-hidden="true">'+esc(versalOf(p))+'</div>'+
+    '<div class="entry-body'+rtlClass(loc(p,"title")+" "+loc(p,"body"))+'"'+dirAttrs(loc(p,"title")+" "+loc(p,"body"))+'>'+metaLine(p)+
+      '<h3><a href="'+href+'">'+esc(loc(p,"title")||"—")+'</a></h3>'+
+      mediaFor(p)+
+      (ex?'<p class="excerpt">'+esc(ex)+(full?"…":"")+'</p>':"")+
+      '<a class="chip" href="'+href+'">'+esc(cta)+'</a>'+
+      (p.tags&&p.tags.length?'<div class="tags">'+p.tags.map(function(x){
+        return '<a class="tag" href="#/tag/'+encodeURIComponent(x)+'">'+esc(x)+'</a>'; }).join("")+'</div>':"")+
+    '</div></article>';
+}
+function viewHome(tag,q){
+  var list=visible();
+  if (tag) list=list.filter(function(p){ return (p.tags||[]).some(function(x){
+    return x.toLowerCase()===tag.toLowerCase(); }); });
+  if (q) { var n=q.toLowerCase();
+    list=list.filter(function(p){
+      return ((p.title||"")+" "+(p.title_ar||"")+" "+(p.body||"")+" "+(p.body_ar||"")+" "+(p.tags||[]).join(" "))
+        .toLowerCase().indexOf(n)>-1; }); }
+  list.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+
+  if (!S.posts.length) {
+    return '<div class="empty"><h3>'+esc(t("nothingYet"))+'</h3><p>'+esc(t("nothingYetBody"))+'</p>'+
+      '<div class="row" style="gap:.5rem"><button class="btn solid" id="first-post">'+esc(t("writeFirst"))+'</button>'+
+      '<button class="btn gold" id="seed">'+esc(t("addExamples"))+'</button></div></div>';
+  }
+  var head='<div class="feedbar"><h2>'+
+    (tag?esc(t("taggedAs"))+"“"+esc(tag)+"”":q?esc(t("resultsFor"))+"“"+esc(q)+"”":esc(t("latest")))+
+    '</h2><span class="count">'+list.length+'</span>'+
+    '<input class="field search" id="q" type="search" placeholder="'+esc(t("searchPh"))+'" value="'+esc(q||"")+'"></div>';
+  if (!list.length) head+='<div class="empty"><h3>'+esc(t("noMatches"))+'</h3><p>'+esc(t("noMatchesBody"))+
+    '</p><a class="btn gold" href="#/">'+esc(t("showAll"))+'</a></div>';
+  return head+list.map(entryHtml).join("")+
+    (list.length?'<section class="subscribe-wide"><h3>'+esc(t("subscribe"))+'</h3><p>'+
+      esc(loc(S.settings,"subCopy"))+'</p>'+subFormHtml("wide")+'</section>':"");
+}
+function paintBackdrop(){
+  var el=document.getElementById("painting"); if(!el) return;
+  var u=safeUrl(S.settings.bgUrl);
+  el.style.backgroundImage = u ? 'url("'+u.replace(/"/g,"%22")+'")' : "";
+  el.style.opacity = u ? "0.16" : "0";
+}
+function findBySlug(s){ return S.posts.filter(function(p){ return p.slug===s||p.id===s; })[0]; }
+function viewPost(slug){
+  var p=findBySlug(slug);
+  if (!p || (p.status!=="published" && S.panel!=="scribe"))
+    return '<div class="empty"><h3>'+esc(t("notFound"))+'</h3><p>'+esc(t("notFoundBody"))+
+      '</p><a class="btn gold" href="#/">'+esc(t("backToPosts"))+'</a></div>';
+
+  var others=visible().filter(function(x){return x.id!==p.id;})
+    .sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); }).slice(0,3);
+  var idx=S.posts.slice().sort(function(a,b){ return new Date(a.createdAt)-new Date(b.createdAt); })
+    .findIndex(function(x){ return x.id===p.id; })+1;
+
+  var txt=loc(p,"title")+" "+loc(p,"body"), rc=rtlClass(txt), da=dirAttrs(txt);
+  return '<a class="back" href="#/">'+esc(t("backToPosts"))+'</a>'+
+    (p.type!=="article"?mediaFor(p,true):"")+
+    '<article class="leaf'+rc+'"'+da+'>'+metaLine(p,true)+
+      '<h1 dir="auto">'+esc(loc(p,"title")||"—")+'</h1>'+
+      '<p class="rubric'+rc+'">'+esc(t("folio")+folioNum(idx))+'</p>'+
+      (p.type==="article"&&safeUrl(p.cover)?'<figure><img src="'+esc(safeUrl(p.cover))+'" alt=""></figure>':"")+
+      '<div class="prose'+rc+'">'+md(loc(p,"body"))+'</div>'+
+      (p.tags&&p.tags.length?'<div class="tags">'+p.tags.map(function(x){
+        return '<a class="tag" href="#/tag/'+encodeURIComponent(x)+'" style="color:#6B5A38;border-color:rgba(36,28,16,.25)">'+esc(x)+'</a>'; }).join("")+'</div>':"")+
+    '</article>'+
+    '<p class="colophon">'+esc(t("folio")+folioNum(idx))+' · '+esc(fmtDate(p.createdAt))+'</p>'+
+    shareHtml(p)+
+    '<section class="subscribe-wide"><h3>'+esc(t("liked"))+'</h3><p>'+esc(loc(S.settings,"subCopy"))+
+      '</p>'+subFormHtml("post")+'</section>'+
+    (others.length?'<section class="panel-sec"><h2>'+esc(t("keepReading"))+'</h2><ul class="list">'+
+      others.map(function(o){
+        return '<li><span class="mark">'+markFor(o.type)+'</span><div class="grow">'+
+          '<a class="ttl" href="#/post/'+encodeURIComponent(o.slug)+'">'+esc(loc(o,"title"))+'</a>'+
+          '<span class="sub">'+esc(kindName(o.type))+' · '+esc(fmtDate(o.createdAt))+'</span></div></li>';
+      }).join("")+'</ul></section>':"");
+}
+function viewArchive(){
+  var list=visible().slice().sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+  if (!list.length) return '<div class="empty"><h3>'+esc(t("nothingYet"))+'</h3><p>'+esc(t("nothingYetBody"))+
+    '</p><a class="btn gold" href="#/">'+esc(t("backToPosts"))+'</a></div>';
+  var years={}, tags={};
+  list.forEach(function(p){
+    var y=new Date(p.createdAt).getFullYear()||"—"; (years[y]=years[y]||[]).push(p);
+    (p.tags||[]).forEach(function(x){ tags[x]=(tags[x]||0)+1; });
+  });
+  var tl=Object.keys(tags).sort(function(a,b){ return tags[b]-tags[a]; });
+  var n=list.length, fol=n;
+  return '<div class="feedbar"><h2>'+esc(t("archive"))+'</h2><span class="count">'+n+'</span></div>'+
+    (tl.length?'<div class="tags" style="margin-bottom:1.6rem">'+tl.map(function(x){
+      return '<a class="tag" href="#/tag/'+encodeURIComponent(x)+'">'+esc(x)+' '+folioNum(tags[x])+'</a>'; }).join("")+'</div>':"")+
+    Object.keys(years).sort().reverse().map(function(y){
+      return '<section class="panel-sec"><h2>'+esc(String(y))+'</h2><ul class="list">'+
+        years[y].map(function(p){
+          var i=fol--;
+          return '<li><span class="sub" style="min-width:3.5rem">'+esc(t("folio")+folioNum(i))+'</span>'+
+            '<span class="mark">'+markFor(p.type)+'</span><div class="grow">'+
+            '<a class="ttl" href="#/post/'+encodeURIComponent(p.slug)+'">'+esc(loc(p,"title"))+'</a>'+
+            '<span class="sub">'+esc(fmtDate(p.createdAt))+(p.status!=="published"?" · "+esc(t("draft")):"")+
+            '</span></div></li>';
+        }).join("")+'</ul></section>';
+    }).join("");
+}
+function viewAbout(){
+  var st=S.settings, b=loc(st,"bio");
+  var rc=rtlClass(b||loc(st,"tagline"));
+  return '<article class="leaf'+rc+'"'+dirAttrs(b||loc(st,"tagline"))+'>'+
+    '<h1 dir="auto">'+esc(t("about"))+(loc(st,"author")?" — "+esc(loc(st,"author")):"")+'</h1>'+
+    '<div class="prose'+rc+'">'+(b?md(b):'<p dir="auto">'+esc(loc(st,"tagline"))+'</p>')+'</div></article>'+
+    '<section class="subscribe-wide"><h3>'+esc(t("subscribe"))+'</h3><p>'+esc(loc(st,"subCopy"))+
+    '</p>'+subFormHtml("about")+'</section>';
+}
+
+/* ---------- 11. Scriptorium (author panel) ---------- */
+function mediaFields(ty,e){
+  if (ty==="photo") return '<label class="lab" for="f-images">'+esc(t("imgLines"))+'</label>'+
+    '<textarea class="field" id="f-images" name="images" placeholder="https://…/plate-i.jpg">'+esc((e.images||[]).join("\n"))+'</textarea>'+
+    '<p class="hint">'+esc(t("imgHint"))+'</p>';
+  if (ty==="video") return '<label class="lab" for="f-video">'+esc(t("vidLink"))+'</label>'+
+    '<input class="field" id="f-video" name="videoUrl" value="'+esc(e.videoUrl||"")+'" placeholder="https://youtube.com/watch?v=…">'+
+    '<p class="hint">'+esc(t("vidHint"))+'</p>';
+  return '<label class="lab" for="f-cover">'+esc(t("coverL"))+'</label>'+
+    '<input class="field" id="f-cover" name="cover" value="'+esc(e.cover||"")+'" placeholder="https://…/cover.jpg">';
+}
+var DRAFT=null;
+function editorDraft(id){
+  var key=id||"";
+  if (DRAFT && DRAFT.__for===key) return DRAFT;
+  var p=id?S.posts.filter(function(x){return x.id===id;})[0]:null;
+  DRAFT = p ? Object.assign({},p)
+    : {id:uid(),type:"article",title:"",title_ar:"",body:"",body_ar:"",cover:"",images:[],
+       videoUrl:"",tags:[],status:"published",createdAt:new Date().toISOString()};
+  DRAFT.__for=key;
+  return DRAFT;
+}
+function viewEditor(id){
+  var p=id?S.posts.filter(function(x){return x.id===id;})[0]:null;
+  var e=editorDraft(id);
+  var el=S.editLang, sfx=el==="ar"?"_ar":"";
+  return '<a class="back" href="'+(p?'#/post/'+encodeURIComponent(p.slug):'#/desk')+'">'+esc(p?t("backToPost"):t("desk"))+'</a>'+
+    '<div class="feedbar"><h2>'+esc(p?t("editPost"):t("newPost"))+'</h2></div>'+
+    '<form id="editor" class="stack" data-id="'+esc(id||"")+'">'+
+    '<div><label class="lab" for="f-type">'+esc(t("whatPosting"))+'</label>'+
+      '<select class="field" id="f-type" name="type">'+
+      [["article",t("anArticle")],["photo",t("photosOpt")],["video",t("aVideo")]].map(function(o){
+        return '<option value="'+o[0]+'"'+(e.type===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join("")+
+      '</select></div>'+
+    '<div><label class="lab">'+esc(t("contentIn"))+'</label>'+
+      '<div class="langtabs">'+
+        '<button type="button" data-editlang="en" aria-pressed="'+(el==="en")+'">'+esc(t("enTab"))+'</button>'+
+        '<button type="button" data-editlang="ar" aria-pressed="'+(el==="ar")+'">'+esc(t("arTab"))+'</button>'+
+      '</div>'+
+      (el==="ar"?'<p class="hint" style="margin:0 0 .6rem">'+esc(t("arNote"))+'</p>':"")+
+    '</div>'+
+    '<div><label class="lab" for="f-title">'+esc(t("titleL"))+' ('+(el==="ar"?"AR":"EN")+')</label>'+
+      '<input class="field" id="f-title" name="title'+sfx+'" dir="auto"'+
+      ' value="'+esc(e["title"+sfx]||"")+'"></div>'+
+    '<div id="media-fields"></div>'+
+    '<div><label class="lab" for="f-body">'+esc(t("words"))+' ('+(el==="ar"?"AR":"EN")+')</label>'+
+      '<textarea class="field body-field" id="f-body" name="body'+sfx+'" dir="auto"'+
+      ' placeholder="'+esc(t("bodyPh"))+'">'+esc(e["body"+sfx]||"")+'</textarea>'+
+      '<p class="hint">'+esc(t("mdHint"))+'</p></div>'+
+    '<div class="row">'+
+      '<div><label class="lab" for="f-tags">'+esc(t("tagsL"))+'</label>'+
+        '<input class="field" id="f-tags" name="tags" value="'+esc((e.tags||[]).join(", "))+'"></div>'+
+      '<div><label class="lab" for="f-date">'+esc(t("dateL"))+'</label>'+
+        '<input class="field" id="f-date" name="date" type="date" value="'+
+        esc(new Date(e.createdAt).toISOString().slice(0,10))+'"></div></div>'+
+    '<div class="row" style="align-items:center">'+
+      '<button class="btn solid" type="submit" name="act" value="published">'+
+        esc(p&&p.status==="published"?t("saveChanges"):t("publish"))+'</button>'+
+      '<button class="btn" type="submit" name="act" value="draft">'+esc(t("saveDraft"))+'</button>'+
+      '<button class="btn gold" type="button" id="preview-toggle">'+esc(t("preview"))+'</button>'+
+      (p?'<button class="btn warn" type="button" id="del">'+esc(t("deletePost"))+'</button>':"")+
+    '</div></form>'+
+    '<section id="preview" hidden><div class="panel-sec"><h2>'+esc(t("preview"))+'</h2><div id="preview-body"></div></div></section>';
+}
+function viewDesk(){
+  var st=S.settings;
+  var pub=S.posts.filter(function(p){return p.status==="published";}).length;
+  var names=["x","instagram","youtube","linkedin","github","website"];
+  var where = STORE_MODE==="claude" ? t("storeClaude") : STORE_MODE==="local" ? t("storeLocal") : t("storeMemory");
+  return '<div class="scribe-head"><h2>'+esc(t("desk"))+'</h2><p>'+esc(t("deskBody"))+'</p></div>'+
+    (STORE_MODE==="memory"
+      ? '<div class="warnbox"><b>'+esc(t("storeWhere"))+'</b> '+esc(where)+'</div>'
+      : '<div class="notebox"><b>'+esc(t("storeWhere"))+'</b> '+esc(where)+'</div>')+
+    '<div class="warnbox">'+esc(t("notLock"))+'</div>'+
+    '<div class="stat-row">'+
+      '<div class="stat"><b>'+folioNum(pub)+'</b><span>'+esc(t("publishedN"))+'</span></div>'+
+      '<div class="stat"><b>'+folioNum(S.posts.length-pub)+'</b><span>'+esc(t("draftsN"))+'</span></div>'+
+      '<div class="stat"><b>'+folioNum(S.subs.length)+'</b><span>'+esc(t("subscribersN"))+'</span></div>'+
+    '</div>'+
+    '<p><a class="btn solid" href="#/write">'+esc(t("newPost"))+'</a></p>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("yourPosts"))+'</h2>'+
+    (S.posts.length?'<ul class="list">'+S.posts.slice().sort(function(a,b){
+      return new Date(b.createdAt)-new Date(a.createdAt); }).map(function(p){
+      return '<li><span class="mark">'+markFor(p.type)+'</span><div class="grow">'+
+        '<a class="ttl" href="#/post/'+encodeURIComponent(p.slug)+'">'+esc(loc(p,"title")||"—")+'</a>'+
+        '<span class="sub">'+esc(fmtDate(p.createdAt))+' · '+esc(p.status==="published"?t("publishedN"):t("draft"))+
+        (p.title_ar?" · AR":"")+'</span></div>'+
+        '<a class="btn sm" href="#/edit/'+esc(p.id)+'">'+esc(t("edit"))+'</a>'+
+        '<button class="btn sm" data-toggle="'+esc(p.id)+'">'+esc(p.status==="published"?t("unpublish"):t("publishIt"))+'</button>'+
+        '<button class="btn sm" data-share="'+esc(p.id)+'">'+esc(t("copyLink"))+'</button></li>';
+    }).join("")+'</ul>':'<p class="lead">'+esc(t("noPostsYet"))+'</p>')+'</section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("sendLetter"))+'</h2>'+
+    '<p class="lead">'+esc(t("sendLetterBody"))+'</p>'+
+    (S.subs.length ? '<div class="dispatch">'+
+        '<label class="lab" for="dispatch-post">'+esc(t("whichPost"))+'</label>'+
+        '<select class="field" id="dispatch-post">'+
+        S.posts.filter(function(p){return p.status==="published";})
+          .sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); })
+          .map(function(p){ return '<option value="'+esc(p.id)+'">'+esc(loc(p,"title")||"—")+'</option>'; }).join("")+
+        '</select>'+
+        '<div class="batch-row">'+
+          subBatches().map(function(b,i){
+            return '<button class="btn solid sm" data-dispatch="'+i+'">'+
+              esc(t("openLetter"))+' '+(subBatches().length>1?(i+1)+"/"+subBatches().length+" ":"")+
+              '('+b.length+')</button>'; }).join("")+
+          '<button class="btn sm" id="copy-letter">'+esc(t("copyLetter"))+'</button>'+
+          '<button class="btn sm" id="copy-bcc">'+esc(t("copyBcc"))+'</button>'+
+        '</div>'+
+        '<p class="hint">'+esc(t("bccHint"))+'</p></div>'
+      : '<p class="lead">'+esc(t("noSubs"))+'</p>')+
+    '</section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("autoSend"))+'</h2>'+
+    '<p class="lead">'+esc(t("autoSendBody"))+'</p>'+
+    '<ol class="steps">'+
+      '<li>'+esc(t("autoStep1"))+'</li>'+
+      '<li>'+esc(t("autoStep2"))+'</li>'+
+      '<li>'+esc(t("autoStep3"))+'</li>'+
+    '</ol>'+
+    '<div class="row">'+
+      '<div><label class="lab" for="s-listurl">'+esc(t("listUrl"))+'</label>'+
+        '<input class="field" id="s-listurl" name="listUrl" form="settings" value="'+esc(st.listUrl||"")+'" placeholder="https://buttondown.email/api/emails/embed-subscribe/yourname"></div>'+
+      '<div><label class="lab" for="s-listfield">'+esc(t("listField"))+'</label>'+
+        '<input class="field" id="s-listfield" name="listField" form="settings" value="'+esc(st.listField||"email")+'"></div>'+
+    '</div>'+
+    '<p class="hint">'+esc(t("listHint"))+'</p></section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("register"))+'</h2><p class="lead">'+esc(t("registerBody"))+'</p>'+
+    (S.subs.length?'<p class="row" style="gap:.5rem"><button class="btn sm" id="csv">'+esc(t("exportCsv"))+'</button>'+
+      '<button class="btn sm" id="copy-emails">'+esc(t("copyEmails"))+'</button></p><ul class="list">'+
+      S.subs.slice().reverse().map(function(s){
+        return '<li><div class="grow"><span class="ttl">'+esc(s.email)+'</span>'+
+          '<span class="sub">'+esc(fmtDate(s.at))+'</span></div>'+
+          '<button class="btn sm warn" data-unsub="'+esc(s.email)+'">'+esc(t("remove"))+'</button></li>'; }).join("")+
+      '</ul>':'<p class="lead">'+esc(t("noSubs"))+'</p>')+'</section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("settings"))+'</h2><form id="settings" name="settings" class="stack">'+
+      '<div class="row">'+
+        '<div><label class="lab" for="s-title">'+esc(t("blogName"))+' (EN)</label>'+
+          '<input class="field" id="s-title" name="title" value="'+esc(st.title||"")+'"></div>'+
+        '<div><label class="lab" for="s-title-ar">'+esc(t("blogName"))+' (AR)</label>'+
+          '<input class="field" id="s-title-ar" name="title_ar" dir="auto" value="'+esc(st.title_ar||"")+'"></div>'+
+      '</div>'+
+      '<div class="row">'+
+        '<div><label class="lab" for="s-author">'+esc(t("yourName"))+' (EN)</label>'+
+          '<input class="field" id="s-author" name="author" value="'+esc(st.author||"")+'"></div>'+
+        '<div><label class="lab" for="s-author-ar">'+esc(t("yourName"))+' (AR)</label>'+
+          '<input class="field" id="s-author-ar" name="author_ar" dir="auto" value="'+esc(st.author_ar||"")+'"></div>'+
+      '</div>'+
+      '<div class="row">'+
+        '<div><label class="lab" for="s-tag">'+esc(t("taglineL"))+' (EN)</label>'+
+          '<input class="field" id="s-tag" name="tagline" value="'+esc(st.tagline||"")+'"></div>'+
+        '<div><label class="lab" for="s-tag-ar">'+esc(t("taglineL"))+' (AR)</label>'+
+          '<input class="field" id="s-tag-ar" name="tagline_ar" dir="auto" value="'+esc(st.tagline_ar||"")+'"></div>'+
+      '</div>'+
+      '<div class="row">'+
+        '<div><label class="lab" for="s-bio">'+esc(t("aboutYou"))+' (EN)</label>'+
+          '<textarea class="field" id="s-bio" name="bio">'+esc(st.bio||"")+'</textarea></div>'+
+        '<div><label class="lab" for="s-bio-ar">'+esc(t("aboutYou"))+' (AR)</label>'+
+          '<textarea class="field" id="s-bio-ar" name="bio_ar" dir="auto">'+esc(st.bio_ar||"")+'</textarea></div>'+
+      '</div>'+
+      '<div class="row">'+
+        '<div><label class="lab" for="s-sub">'+esc(t("subPitch"))+' (EN)</label>'+
+          '<input class="field" id="s-sub" name="subCopy" value="'+esc(st.subCopy||"")+'"></div>'+
+        '<div><label class="lab" for="s-sub-ar">'+esc(t("subPitch"))+' (AR)</label>'+
+          '<input class="field" id="s-sub-ar" name="subCopy_ar" dir="auto" value="'+esc(st.subCopy_ar||"")+'"></div>'+
+      '</div>'+
+      '<div><label class="lab" for="s-bg">'+esc(t("bgPainting"))+'</label>'+
+        '<input class="field" id="s-bg" name="bgUrl" value="'+esc(st.bgUrl||"")+'" placeholder="https://upload.wikimedia.org/…/miniature.jpg">'+
+        '<p class="hint">'+esc(t("bgHint"))+'</p></div>'+
+      '<div><label class="lab" for="s-url">'+esc(t("webAddress"))+'</label>'+
+        '<input class="field" id="s-url" name="siteUrl" value="'+esc(st.siteUrl||"")+'" placeholder="https://yourname.com">'+
+        '<p class="hint">'+esc(t("webAddressHint"))+'</p></div>'+
+      '<div class="row">'+names.map(function(k){
+        return '<div><label class="lab" for="s-'+k+'">'+(k==="x"?"X":k.charAt(0).toUpperCase()+k.slice(1))+'</label>'+
+          '<input class="field" id="s-'+k+'" name="link_'+k+'" value="'+esc((st.links&&st.links[k])||"")+'" placeholder="https://…"></div>';
+      }).join("")+'</div>'+
+      '<div><button class="btn solid" type="submit">'+esc(t("saveSettings"))+'</button></div>'+
+    '</form></section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("ghTitle"))+'</h2>'+
+    '<p class="lead">'+esc(t("ghBody"))+'</p>'+
+    '<div class="dispatch">'+
+      '<div class="row">'+
+        '<div><label class="lab" for="s-ghuser">'+esc(t("ghUserL"))+'</label>'+
+          '<input class="field" id="s-ghuser" name="ghUser" form="settings" value="'+esc(st.ghUser||"")+'" placeholder="octocat" autocomplete="username"></div>'+
+        '<div style="align-self:end"><button class="btn" id="gh-address">'+esc(t("ghUseAddress"))+'</button></div>'+
+      '</div>'+
+      (ghClean(st.ghUser)
+        ? '<ul class="list" style="margin-top:.9rem">'+
+            '<li><div class="grow"><span class="sub">'+esc(t("ghRepoName"))+'</span>'+
+              '<span class="ttl">'+esc(ghRepo(st.ghUser))+'</span></div>'+
+              '<button class="btn sm" data-copytext="'+esc(ghRepo(st.ghUser))+'">'+esc(t("copyLink"))+'</button></li>'+
+            '<li><div class="grow"><span class="sub">'+esc(t("ghAddress"))+'</span>'+
+              '<span class="ttl">'+esc(ghUrl(st.ghUser))+'</span></div>'+
+              '<a class="btn sm" href="'+esc(ghUrl(st.ghUser))+'" target="_blank" rel="noopener noreferrer">'+esc(t("ghVisit"))+'</a></li>'+
+          '</ul>'
+        : '')+
+      '<ol class="steps" style="margin-top:1rem">'+
+        '<li>'+esc(t("ghStep1"))+'</li>'+
+        '<li>'+esc(t("ghStep2"))+'</li>'+
+        '<li>'+esc(t("ghStep3"))+'</li>'+
+        '<li>'+esc(t("ghStep4"))+'</li>'+
+        '<li>'+esc(t("ghStep5"))+'</li>'+
+      '</ol>'+
+      '<div class="batch-row">'+
+        '<button class="btn solid" data-copypage="1">'+esc(t("copyPage"))+'</button>'+
+        '<a class="btn" href="https://docs.github.com/en/pages/quickstart" target="_blank" rel="noopener noreferrer">'+esc(t("ghDocs"))+'</a>'+
+      '</div>'+
+      '<p class="hint">'+esc(t("ghWait"))+'</p>'+
+    '</div></section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("bind"))+'</h2>'+
+    '<p class="lead">'+esc(t("bindBody"))+'</p>'+
+    '<ol class="steps">'+
+      '<li>'+esc(t("bindStep1"))+'</li>'+
+      '<li>'+esc(t("bindStep2"))+'</li>'+
+      '<li>'+esc(t("bindStep3"))+'</li>'+
+    '</ol>'+
+    '<p class="row" style="gap:.5rem"><button class="btn solid" id="bake">'+esc(t("bindBtn"))+'</button>'+
+    '<button class="btn" data-copypage="1">'+esc(t("copyPage"))+'</button></p>'+
+    '<p class="hint">'+esc(t("bindHint"))+'</p></section>'+
+
+    '<section class="panel-sec"><h2>'+esc(t("yourData"))+'</h2><p class="lead">'+esc(t("yourDataBody"))+'</p>'+
+    '<p class="row" style="gap:.5rem"><button class="btn sm" id="export">'+esc(t("exportAll"))+'</button>'+
+    '<label class="btn sm" for="import">'+esc(t("importBackup"))+'</label>'+
+    '<input id="import" type="file" accept="application/json,.json" hidden></p></section>';
+}
+
+/* ---------- 12. Render ---------- */
+function render(){
+  var r=route(), main=document.getElementById("main");
+  document.documentElement.lang=S.lang;
+  document.documentElement.dir=S.lang==="ar"?"rtl":"ltr";
+  if (!S.ready) { main.innerHTML='<p class="loading">Opening the library…</p>'; return; }
+
+  if (S.panel==="read" && (r.view==="desk"||r.view==="write"||r.view==="edit")) S.panel="scribe";
+
+  var html;
+  switch (r.view) {
+    case "post": html=viewPost(decodeURIComponent(r.arg)); break;
+    case "tag": html=viewHome(decodeURIComponent(r.arg),""); break;
+    case "search": html=viewHome("",decodeURIComponent(r.arg)); break;
+    case "archive": html=viewArchive(); break;
+    case "about": html=viewAbout(); break;
+    case "desk": html=viewDesk(); break;
+    case "write": html=viewEditor(""); break;
+    case "edit": html=viewEditor(r.arg); break;
+    default: html=viewHome("",""); 
+  }
+  paintBackdrop();
+  if (r.view!=="write" && r.view!=="edit") DRAFT=null;
+  main.innerHTML=html;
+  renderTop(); renderRail();
+  var cur=r.view==="post"?findBySlug(decodeURIComponent(r.arg)):null;
+  document.title=(cur?loc(cur,"title")+" — ":"")+loc(S.settings,"title");
+  if (r.view==="write"||r.view==="edit") wireEditor();
+  window.scrollTo(0,0);
+}
+
+/* ---------- 13. Persistence ---------- */
+function saveSite(){ return store.set(K_SITE,{settings:S.settings,posts:S.posts},true); }
+function saveSubs(){ return store.set(K_SUBS,S.subs,true); }
+function savePref(){ return store.set(K_PREF,{lang:S.lang,panel:S.panel},false); }
+async function load(){
+  var res=await Promise.all([store.get(K_SITE,true),store.get(K_SUBS,true),store.get(K_PREF,false)]);
+  var site=res[0], subs=res[1], pref=res[2];
+  /* a published copy carries its library inside it; it seeds a reader who has
+     nothing saved yet, and steps aside once there is anything of their own */
+  if (!site || !Array.isArray(site.posts) || !site.posts.length) {
+    var baked = bakedData();
+    if (baked) site = { settings:baked.settings, posts:baked.posts };
+  }
+  if (site && typeof site==="object") {
+    S.settings=Object.assign({},DEFAULTS,site.settings||{});
+    S.settings.links=Object.assign({},DEFAULTS.links,(site.settings||{}).links||{});
+    S.posts=Array.isArray(site.posts)?site.posts:[];
+  }
+  S.subs=Array.isArray(subs)?subs:[];
+  if (pref && pref.lang) S.lang = pref.lang==="ar"?"ar":"en";
+  if (pref && pref.panel) S.panel = pref.panel==="scribe"?"scribe":"read";
+  S.ready=true;
+  render();
+}
+
+/* ---------- 14. Editor wiring ---------- */
+function wireEditor(){
+  var form=document.getElementById("editor"); if(!form) return;
+  var id=form.dataset.id;
+  var draft=editorDraft(id);
+  var sel=document.getElementById("f-type"), holder=document.getElementById("media-fields");
+  holder.innerHTML=mediaFields(sel.value,draft);
+  sel.addEventListener("change",function(){
+    capture(form,draft);
+    holder.innerHTML=mediaFields(sel.value,draft);
+  });
+
+  Array.prototype.forEach.call(form.querySelectorAll("[data-editlang]"),function(b){
+    b.addEventListener("click",function(){
+      capture(form,draft);
+      S.editLang=b.dataset.editlang;
+      render();
+    });
+  });
+
+  document.getElementById("preview-toggle").addEventListener("click",function(){
+    var pv=document.getElementById("preview"), body=document.getElementById("preview-body");
+    if (pv.hidden) {
+      var d=readForm(form), sfx=S.editLang==="ar"?"_ar":"";
+      var title=d["title"+sfx]||"", txt=d["body"+sfx]||"";
+      var media=d.type==="video"?videoEmbed(d.videoUrl):d.type==="photo"?galleryHtml(d.images,title):
+        (safeUrl(d.cover)?'<div class="band"><img src="'+esc(safeUrl(d.cover))+'" alt=""></div>':"");
+      var rc=rtlClass(title+" "+txt);
+      body.innerHTML=media+'<article class="leaf'+rc+'"'+dirAttrs(title+" "+txt)+
+        '><h1 dir="auto">'+esc(title||"—")+'</h1><div class="prose'+rc+'">'+md(txt)+'</div></article>';
+      pv.hidden=false; this.textContent=t("hidePreview");
+      pv.scrollIntoView({behavior:"smooth",block:"start"});
+    } else { pv.hidden=true; this.textContent=t("preview"); }
+  });
+
+  var del=document.getElementById("del");
+  if (del) del.addEventListener("click",async function(){
+    if(!confirm(t("confirmDel"))) return;
+    S.posts=S.posts.filter(function(p){return p.id!==id;});
+    DRAFT=null;
+    await saveSite(); toast(t("deleted")); go("#/desk");
+  });
+
+  form.addEventListener("submit",async function(ev){
+    ev.preventDefault();
+    var act=(ev.submitter&&ev.submitter.value)||"published";
+    capture(form,draft);
+    if (!draft.title && !draft.title_ar){ toast(t("titleFirst")); return; }
+    draft.status=act==="draft"?"draft":"published";
+    draft.updatedAt=new Date().toISOString();
+    draft.slug=uniqueSlug(draft.title||draft.title_ar,draft.id);
+    var post=commit(draft);
+    if (await saveSite()) {
+      DRAFT=null;
+      toast(post.status==="published"?t("published2"):t("saved"));
+      go("#/post/"+encodeURIComponent(post.slug));
+    }
+  });
+}
+/* copy the fields currently on screen into the working draft */
+function capture(form,draft){
+  var d=readForm(form), sfx=S.editLang==="ar"?"_ar":"";
+  if (d["title"+sfx]!==undefined) draft["title"+sfx]=String(d["title"+sfx]).trim();
+  if (d["body"+sfx]!==undefined) draft["body"+sfx]=d["body"+sfx];
+  if (d.type!==undefined) draft.type=d.type;
+  if (d.tags) draft.tags=d.tags;
+  if (form.querySelector('[name="cover"]')) draft.cover=d.cover;
+  if (form.querySelector('[name="images"]')) draft.images=d.images;
+  if (form.querySelector('[name="videoUrl"]')) draft.videoUrl=d.videoUrl;
+  if (d.date) draft.createdAt=new Date(d.date+"T12:00:00").toISOString();
+  return draft;
+}
+/* fold the working draft into the library: replace by id, or append */
+function commit(draft){
+  var clean={};
+  Object.keys(draft).forEach(function(k){ if (k!=="__for") clean[k]=draft[k]; });
+  var at=-1;
+  for (var i=0;i<S.posts.length;i++) if (S.posts[i].id===clean.id) { at=i; break; }
+  if (at>-1) S.posts[at]=clean; else S.posts.push(clean);
+  return clean;
+}
+function readForm(form){
+  var g=function(n){ var el=form.querySelector('[name="'+n+'"]'); return el?el.value:undefined; };
+  return {
+    type:g("type"), title:g("title"), title_ar:g("title_ar"),
+    body:g("body"), body_ar:g("body_ar"),
+    cover:g("cover"), videoUrl:g("videoUrl"), images:lines(g("images")), date:g("date"),
+    tags:String(g("tags")||"").split(",").map(function(s){return s.trim();}).filter(Boolean)
+  };
+}
+function uniqueSlug(title,id){
+  var base=slugify(title), s=base, n=2;
+  while (S.posts.some(function(p){ return p.slug===s && p.id!==id; })) { s=base+"-"+n; n++; }
+  return s;
+}
+
+/* ---------- 15. Events ---------- */
+document.addEventListener("click",async function(ev){
+  var el=ev.target;
+  var btn=el.closest?el.closest("button,[data-zoom],a[data-zoom]"):null;
+
+  if (el.id==="tab-read"){ S.panel="read"; savePref(); go("#/"); render(); return; }
+  if (el.id==="tab-scribe"||el.id==="to-scribe"){ S.panel="scribe"; savePref(); go("#/desk"); render(); return; }
+  if (el.id==="to-read"){ S.panel="read"; savePref(); go("#/"); render(); return; }
+  if (el.dataset && el.dataset.lang){ S.lang=el.dataset.lang; savePref(); render(); return; }
+  if (el.id==="first-post"){ S.panel="scribe"; savePref(); go("#/write"); return; }
+  if (el.id==="seed"){ await seed(); return; }
+
+  if (el.dataset && el.dataset.zoom){
+    document.getElementById("lb-img").src=el.dataset.zoom;
+    document.getElementById("lightbox").classList.add("on"); return;
+  }
+  if (el.id==="lb-close"||el.id==="lightbox"){ document.getElementById("lightbox").classList.remove("on"); return; }
+  if (!btn) return;
+  var d=btn.dataset;
+
+  if (d.copyLink||d.share){
+    var p=S.posts.filter(function(x){return x.id===(d.copyLink||d.share);})[0];
+    if (p) copy(postUrl(p),t("copyLink")); return;
+  }
+  if (d.copyCaption){
+    var p2=S.posts.filter(function(x){return x.id===d.copyCaption;})[0];
+    if (p2) copy(loc(p2,"title")+"\n\n"+excerptOf(p2)+"\n\n"+postUrl(p2),t("capCopied")); return;
+  }
+  if (d.native){
+    var p3=S.posts.filter(function(x){return x.id===d.native;})[0];
+    if (p3&&navigator.share) navigator.share({title:loc(p3,"title"),text:excerptOf(p3),url:postUrl(p3)}).catch(function(){});
+    return;
+  }
+  if (d.toggle){
+    var p4=S.posts.filter(function(x){return x.id===d.toggle;})[0];
+    if (p4){ p4.status=p4.status==="published"?"draft":"published";
+      await saveSite(); toast(p4.status==="published"?t("published2"):t("withdrawn")); render(); }
+    return;
+  }
+  if (d.unsub){
+    S.subs=S.subs.filter(function(s){return s.email!==d.unsub;});
+    await saveSubs(); toast(t("removed")); render(); return;
+  }
+  if (btn.id==="csv"){
+    download("email,joined\n"+S.subs.map(function(s){
+      return '"'+s.email.replace(/"/g,'""')+'","'+s.at+'"'; }).join("\n"),"register.csv","text/csv");
+    return;
+  }
+  if (btn.id==="copy-emails"){ copy(S.subs.map(function(s){return s.email;}).join(", "),t("copied")); return; }
+  if (d.dispatch!==undefined){
+    var sel=document.getElementById("dispatch-post");
+    var chosen=S.posts.filter(function(x){ return x.id===(sel&&sel.value); })[0];
+    if (!chosen){ toast(t("pickPost")); return; }
+    var batch=subBatches()[+d.dispatch]||[];
+    window.open(mailtoFor(chosen,batch),"_blank");
+    toast(t("letterOpened"));
+    return;
+  }
+  if (btn.id==="copy-letter"){
+    var sel2=document.getElementById("dispatch-post");
+    var ch2=S.posts.filter(function(x){ return x.id===(sel2&&sel2.value); })[0];
+    if (!ch2){ toast(t("pickPost")); return; }
+    var L=letterFor(ch2); copy(L.subject+"\n\n"+L.body,t("copied")); return;
+  }
+  if (btn.id==="copy-bcc"){ copy(S.subs.map(function(s){return s.email;}).join(", "),t("copied")); return; }
+  if (d.copypage){
+    try { copy(bakeSite(), t("pageCopied")); }
+    catch(e){ toast(t("bindFailed")); }
+    return;
+  }
+  if (d.copytext){ copy(d.copytext, t("copied")); return; }
+  if (btn.id==="gh-address"){
+    var ghIn=document.getElementById("s-ghuser");
+    var who=ghClean(ghIn && ghIn.value ? ghIn.value : S.settings.ghUser);
+    if (!who){ toast(t("ghNeedUser")); if(ghIn) ghIn.focus(); return; }
+    S.settings.ghUser=who;
+    S.settings.siteUrl=ghUrl(who);
+    if (await saveSite()){ toast(t("ghAddressSet")); render(); }
+    return;
+  }
+  if (btn.id==="bake"){
+    try {
+      download(bakeSite(), "index.html", "text/html");
+      toast(t("bound"));
+    } catch(e){ toast(t("bindFailed")); }
+    return;
+  }
+  if (btn.id==="export"){
+    download(JSON.stringify({settings:S.settings,posts:S.posts,subs:S.subs},null,2),"scriptorium-archive.json","application/json");
+    return;
+  }
+});
+
+document.addEventListener("submit",async function(ev){
+  var form=ev.target;
+  if (form.dataset && form.dataset.sub){
+    ev.preventDefault();
+    var key=form.dataset.sub, input=form.querySelector('input[name="email"]');
+    var email=(input.value||"").trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ toast(t("badEmail")); input.focus(); return; }
+    var ok=document.querySelector('[data-subok="'+key+'"]');
+    if (S.subs.some(function(s){ return s.email.toLowerCase()===email.toLowerCase(); })){
+      if (ok){ ok.textContent=t("already"); ok.hidden=false; } form.hidden=true; return;
+    }
+    S.subs.push({email:email,at:new Date().toISOString()});
+    var forwarded = await forwardToList(email);
+    if (await saveSubs()){
+      form.hidden=true;
+      if (ok){ ok.textContent = forwarded ? t("onListSent")+email+"." : t("onList")+email+"."; ok.hidden=false; }
+      toast(t("subscribed")); renderTop();
+    }
+    return;
+  }
+  if (form.id==="settings"){
+    ev.preventDefault();
+    var fd=new FormData(form);
+    ["title","title_ar","author","author_ar","tagline","tagline_ar","bio","bio_ar","subCopy","subCopy_ar","siteUrl","bgUrl","listUrl","listField","ghUser"]
+      .forEach(function(k){ S.settings[k]=String(fd.get(k)||"").trim(); });
+    if (!S.settings.title && !S.settings.title_ar) S.settings.title="Scriptorium";
+    Object.keys(DEFAULTS.links).forEach(function(k){ S.settings.links[k]=String(fd.get("link_"+k)||"").trim(); });
+    if (await saveSite()){ toast(t("settingsSaved")); render(); }
+    return;
+  }
+});
+
+document.addEventListener("change",function(ev){
+  if (ev.target.id!=="import") return;
+  var f=ev.target.files&&ev.target.files[0]; if(!f) return;
+  var fr=new FileReader();
+  fr.onload=async function(){
+    try{
+      var data=JSON.parse(fr.result);
+      if (data.settings){ S.settings=Object.assign({},DEFAULTS,data.settings);
+        S.settings.links=Object.assign({},DEFAULTS.links,data.settings.links||{}); }
+      if (Array.isArray(data.posts)) S.posts=data.posts;
+      if (Array.isArray(data.subs)){ S.subs=data.subs; await saveSubs(); }
+      await saveSite(); toast(t("imported")); render();
+    }catch(e){ toast(t("badFile")); }
+  };
+  fr.readAsText(f);
+});
+
+document.addEventListener("keydown",function(ev){
+  if (ev.key==="Escape") document.getElementById("lightbox").classList.remove("on");
+  if (ev.key==="Enter" && ev.target.id==="q"){ ev.preventDefault(); go("#/search/"+encodeURIComponent(ev.target.value)); }
+});
+document.addEventListener("input",function(ev){
+  if (ev.target.id!=="q") return;
+  clearTimeout(window._qt);
+  var v=ev.target.value;
+  window._qt=setTimeout(function(){
+    if (!v){ go("#/"); return; }
+    go("#/search/"+encodeURIComponent(v));
+    var q=document.getElementById("q");
+    if (q){ q.focus(); try{ q.setSelectionRange(v.length,v.length); }catch(e){} }
+  },420);
+});
+
+/* ---------- 15a. Binding a published copy ---------- */
+/* A hosted page has no server to ask for posts, so the posts travel inside the
+   file itself. bakeSite() clones this very document, resets the parts the app
+   fills in at run time, and staples the library into the head as JSON. The
+   result is one file that shows the same posts to every visitor. */
+function bakePayload(){
+  /* "</" would end the script tag early; JSON reads "<\/" as "</" so this is safe */
+  return JSON.stringify({ settings:S.settings, posts:S.posts, baked:new Date().toISOString() })
+    .replace(/<\//g, "<\\/");
+}
+function bakedData(){
+  var el = document.getElementById("baked");
+  if (!el) return null;
+  try { var d = JSON.parse(el.textContent||el.innerHTML); return d && d.posts ? d : null; }
+  catch(e){ return null; }
+}
+/* github.io addresses are lower case and allow only letters, digits and hyphens */
+function ghClean(u){ return String(u||"").trim().replace(/^@/,"").replace(/[^A-Za-z0-9-]/g,"").toLowerCase(); }
+function ghRepo(u){ var c=ghClean(u); return c ? c+".github.io" : ""; }
+function ghUrl(u){ var c=ghClean(u); return c ? "https://"+c+".github.io" : ""; }
+
+function bakeSite(){
+  var clone = document.documentElement.cloneNode(true);
+  var q = function(sel){ return clone.querySelector(sel); };
+  /* reset everything the app paints in at run time */
+  var rail=q("#rail"); if (rail) rail.innerHTML="";
+  var top=q("#topbar"); if (top) top.innerHTML="";
+  var main=q("#main"); if (main) main.innerHTML='<p class="loading">Opening the library…</p>';
+  var tSpan=q("#toast span"); if (tSpan) tSpan.textContent="";
+  var lbImg=q("#lb-img"); if (lbImg) lbImg.removeAttribute("src");
+  var lb=q("#lightbox"); if (lb) lb.setAttribute("class","lightbox");
+  var paint=q("#painting"); if (paint) paint.removeAttribute("style");
+  var ttl=q("title"); if (ttl) ttl.textContent = loc(S.settings,"title") || "Scriptorium";
+  var prev=q("#baked"); if (prev && prev.parentNode) prev.parentNode.removeChild(prev);
+
+  var script = document.createElement("script");
+  script.id = "baked";
+  script.type = "application/json";
+  script.textContent = bakePayload();
+  var head = q("head"); if (head) head.appendChild(script);
+  return "<!DOCTYPE html>\n" + clone.outerHTML;
+}
+
+/* ---------- 15b. Letters ---------- */
+/* If the author has pointed the form at a real mailing-list service, hand the
+   address on to it. Cross-origin replies can't be read back, so this is
+   best-effort: the address is always kept locally as well. */
+async function forwardToList(email){
+  var url=safeUrl(S.settings.listUrl);
+  if (!url) return false;
+  try{
+    var fd=new FormData();
+    fd.append(S.settings.listField||"email", email);
+    await fetch(url,{method:"POST",mode:"no-cors",body:fd});
+    return true;
+  }catch(e){ return false; }
+}
+/* Build a letter for one post and hand it to the author's mail client with
+   every subscriber in BCC. mailto: links have a length ceiling, so the
+   register is sent out in batches. */
+var BATCH=40;
+function subBatches(){
+  var out=[], all=S.subs.map(function(s){ return s.email; });
+  for (var i=0;i<all.length;i+=BATCH) out.push(all.slice(i,i+BATCH));
+  return out;
+}
+function letterFor(p){
+  if (!p) return { subject:"", body:"" };
+  var title=loc(p,"title")||"", url=postUrl(p);
+  var body=stripMd(loc(p,"body")).slice(0,900);
+  var tail=stripMd(loc(p,"body")).length>900 ? "…" : "";
+  return { subject:title, body:title+"\n\n"+body+tail+"\n\n"+t("letterRead")+" "+url+"\n" };
+}
+function mailtoFor(p,batch){
+  var L=letterFor(p);
+  return "mailto:?bcc="+encodeURIComponent(batch.join(","))+
+    "&subject="+encodeURIComponent(L.subject)+
+    "&body="+encodeURIComponent(L.body);
+}
+
+/* ---------- 16. Examples ---------- */
+async function seed(){
+  var now=Date.now(), day=86400000;
+  S.posts=[
+    { id:uid(), type:"article",
+      title:"On keeping a library of one",
+      title_ar:"في اقتناء مكتبة لشخص واحد",
+      body:"For four hundred years a scriptorium was a room where one person copied a book so that another person, somewhere else, could read it. The work was slow and the output was one.\n\n## Why copy by hand at all\n\nA feed is good at reach and bad at memory. A library is the opposite: nothing arrives, but nothing is lost either.\n\n- Longer pieces, when there is something to work out\n- Plates, when the light is worth keeping\n- Motion, when the thing will not sit still\n\n> Write for the version of yourself who forgets.\n\nThe register is on the left. Sign it and each new manuscript will find you.",
+      body_ar:"لأربعة قرون كانت غرفة النسخ حجرة ينسخ فيها شخص كتاباً ليقرأه شخص آخر في مكان بعيد. كان العمل بطيئاً وكان الناتج نسخة واحدة.\n\n## لماذا النسخ بخط اليد\n\nالخلاصات بارعة في الانتشار وعاجزة عن الذاكرة. المكتبة عكس ذلك: لا يصل إليك شيء، لكن لا يضيع منها شيء.\n\n- نصوص أطول، حين يكون هناك ما يستحق التفكير\n- صور، حين يستحق الضوء أن يُحفظ\n- فيديو، حين يرفض الشيء أن يثبت\n\n> اكتب لنفسك التي سوف تنسى.\n\nالسجل على الجانب. وقّع فيه لتصلك كل مخطوطة جديدة.",
+      tags:["notes","craft"], status:"published", createdAt:new Date(now-day*2).toISOString(), cover:"" },
+    { id:uid(), type:"photo",
+      title:"Plates: the old quarter before the shops open",
+      title_ar:"صور: الحي القديم قبل أن تفتح الدكاكين",
+      body:"Out before six. The light lasts about twenty minutes in that street and then the walls take it back.",
+      body_ar:"خرجت قبل السادسة. يبقى الضوء نحو عشرين دقيقة في ذلك الشارع ثم تستعيده الجدران.",
+      images:["https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=80",
+              "https://images.unsplash.com/photo-1512632578888-169bbbc64f33?w=1200&q=80",
+              "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=1200&q=80"],
+      tags:["plates","travel"], status:"published", createdAt:new Date(now-day*7).toISOString() },
+    { id:uid(), type:"video",
+      title:"Motion: ten minutes of a street I walk daily",
+      title_ar:"فيديو: عشر دقائق من شارع أمشيه كل يوم",
+      body:"No commentary. Only the sound of the place, which is most of what I remember of it.",
+      body_ar:"بلا تعليق. صوت المكان فقط، وهو أكثر ما أتذكره منه.",
+      videoUrl:"https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+      tags:["motion"], status:"published", createdAt:new Date(now-day*13).toISOString() }
+  ].map(function(p){ p.slug=slugify(p.title); return p; });
+  await saveSite();
+  toast(t("seeded"));
+  render();
+}
+
+/* ---------- 18. Boot ---------- */
+window.addEventListener("hashchange",render);
+load();
+
+</script>
+</body>
+</html>
